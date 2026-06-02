@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Music, BookOpen, Trash2, Smile } from 'lucide-react'
+import { Send, Music, BookOpen, Trash2, Smile, ExternalLink } from 'lucide-react'
 import Avatar from '../../components/atoms/Avatar'
 import Button from '../../components/atoms/Button'
 import { useAppStore } from '../../store/useAppStore'
@@ -20,6 +20,62 @@ const INITIAL_MESSAGE = {
 
 function ChatBubble({ msg }) {
   const isAI = msg.role === 'ai'
+
+  const renderMessageText = (text) => {
+    if (!text) return ''
+    
+    // Tách văn bản bằng Regex tìm link URL
+    const parts = text.split(/(https?:\/\/[^\s]+)/g)
+    return parts.map((part, i) => {
+      if (part.match(/^https?:\/\/[^\s]+/)) {
+        const isSpotify = part.includes('spotify.com')
+        
+        return (
+          <span 
+            key={i} 
+            className={cn(
+              "inline-flex flex-col gap-1.5 my-1.5 p-2.5 rounded-2xl border w-full max-w-xs",
+              isAI 
+                ? "bg-primary/10 border-primary/20 text-text-main" 
+                : "bg-white/10 border-white/20 text-white"
+            )}
+          >
+            <a 
+              href={part} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className={cn(
+                "hover:underline font-ui text-xs font-semibold flex items-center gap-1.5",
+                isAI ? "text-secondary hover:text-secondary-dark" : "text-white hover:text-white/80"
+              )}
+            >
+              <span>{isSpotify ? '🎵 Nghe trên Spotify' : '🔗 Mở liên kết'}</span>
+              <ExternalLink size={12} />
+            </a>
+            {isSpotify && (
+              <button
+                onClick={() => {
+                  const fakeItem = {
+                    title: 'Nhạc đề xuất từ Mia',
+                    artist: 'Chọn lọc từ cuộc trò chuyện',
+                    spotifyUrl: part,
+                    emoji: '🌸'
+                  }
+                  useAppStore.getState().setPlayingItem(fakeItem)
+                  useAppStore.getState().setIsMinimized(false)
+                }}
+                className="px-3 py-1 bg-primary text-text-main rounded-full font-ui text-[10px] font-bold hover:bg-primary-dark cursor-pointer transition-colors shadow-sm w-fit active:scale-95"
+              >
+                Phát ngay ⚡
+              </button>
+            )}
+          </span>
+        )
+      }
+      return <span key={i} className="whitespace-pre-line">{part}</span>
+    })
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -35,7 +91,7 @@ function ChatBubble({ msg }) {
           <span className="font-ui text-xs text-text-sub mb-1 ml-1">{MIA_NAME}</span>
         )}
         <div className={isAI ? 'chat-bubble-ai' : 'chat-bubble-user'}>
-          <p className="whitespace-pre-line">{msg.text}</p>
+          <div className="flex flex-col gap-1">{renderMessageText(msg.text)}</div>
         </div>
         <span className="font-ui text-xs text-text-sub mt-1 mx-1">
           {formatTime(msg.time)}

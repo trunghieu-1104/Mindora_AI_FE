@@ -9,6 +9,12 @@ export const useAppStore = create(
       user: null,
       setUser: (user) => set({ user }),
 
+      // Spotify Player State
+      playingItem: null,
+      setPlayingItem: (item) => set({ playingItem: item }),
+      isMinimized: false,
+      setIsMinimized: (min) => set({ isMinimized: min }),
+
       // Mood check-in hôm nay
       todayMood: null,
       setTodayMood: (mood) => set({ todayMood: mood }),

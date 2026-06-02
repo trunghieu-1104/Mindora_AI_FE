@@ -1,27 +1,22 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Music, BookOpen, MoreHorizontal, Smile } from 'lucide-react'
+import { Send, Music, BookOpen, Trash2, Smile } from 'lucide-react'
 import Avatar from '../../components/atoms/Avatar'
 import Button from '../../components/atoms/Button'
 import { useAppStore } from '../../store/useAppStore'
-import { QUICK_REPLIES, formatTime } from '../../lib/utils'
+import { QUICK_REPLIES, formatTime, MOODS } from '../../lib/utils'
+import { askMia } from '../../lib/gemini'
 import { cn } from '../../lib/utils'
 
 const MIA_AVATAR = null
 const MIA_NAME = 'Mia'
 
 const INITIAL_MESSAGE = {
-  id: 1,
+  id: 'init-msg',
   role: 'ai',
   text: 'Chào bạn! Mình là Mia\nHôm nay bạn đang cảm thấy thế nào? Mình luôn ở đây để lắng nghe bạn nhé.',
   time: new Date(),
 }
-
-const SIDEBAR_HISTORY = [
-  { date: 'Hôm nay', mood: '😌', preview: 'Hôm nay mình hơi mệt...' },
-  { date: 'Hôm qua', mood: '😊', preview: 'Ngày hôm qua khá vui!' },
-  { date: '27/05', mood: '😔', preview: 'Nhiều chuyện xảy ra quá...' },
-]
 
 function ChatBubble({ msg }) {
   const isAI = msg.role === 'ai'
@@ -58,7 +53,7 @@ function TypingIndicator() {
       exit={{ opacity: 0 }}
       className="flex gap-3 mb-4"
     >
-      <Avatar name={MIA_NAME} size="sm" className="mt-1 shrink-0" />
+      <Avatar name={MIA_NAME} size="sm" className="mt-1 shrink-0 bg-primary" />
       <div className="chat-bubble-ai flex items-center gap-1.5 py-3 px-4">
         {[0, 1, 2].map(i => (
           <span
@@ -73,7 +68,7 @@ function TypingIndicator() {
 }
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState([INITIAL_MESSAGE])
+  const { messages, addMessage, clearMessages, journals, user } = useAppStore()
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const endRef = useRef(null)
@@ -96,24 +91,36 @@ export default function ChatPage() {
     return 'Mình hiểu rồi 💙 Cảm ơn bạn đã chia sẻ với mình. Bạn có muốn nói thêm về điều này không, hay mình gợi ý một số bài nhạc phù hợp với tâm trạng của bạn?'
   }
 
-  const handleSend = (text = input.trim()) => {
+  const handleSend = async (text = input.trim()) => {
     if (!text) return
 
-    const userMsg = { id: Date.now(), role: 'user', text, time: new Date() }
-    setMessages(prev => [...prev, userMsg])
+    // Add user message to store (and sync with DB if logged in)
+    await addMessage({ role: 'user', text, time: new Date() })
     setInput('')
     setIsTyping(true)
 
-    setTimeout(() => {
-      setIsTyping(false)
-      const aiMsg = {
-        id: Date.now() + 1,
+    // Call Gemini API and add response
+    try {
+      const aiReply = await askMia(text, messages)
+      await addMessage({
         role: 'ai',
-        text: getMiaReply(text),
+        text: aiReply,
         time: new Date(),
-      }
-      setMessages(prev => [...prev, aiMsg])
-    }, 1200 + Math.random() * 600)
+      })
+    } catch (err) {
+      console.warn('Gemini error, falling back to local handler:', err)
+      // Robust offline fallback
+      setTimeout(async () => {
+        const localReply = getMiaReply(text)
+        await addMessage({
+          role: 'ai',
+          text: localReply,
+          time: new Date(),
+        })
+      }, 1000)
+    } finally {
+      setIsTyping(false)
+    }
 
     inputRef.current?.focus()
   }
@@ -125,8 +132,31 @@ export default function ChatPage() {
     }
   }
 
+  const handleClearChat = () => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện này không?')) {
+      clearMessages()
+    }
+  }
+
+  // Generate dynamic sidebar history from user's actual journal entries
+  const sidebarHistory = journals.slice(0, 5).map((j) => {
+    const moodObj = MOODS.find((m) => m.value === j.mood)
+    return {
+      date: new Date(j.date).toLocaleDateString('vi-VN', { day: 'numeric', month: 'numeric' }),
+      mood: moodObj?.emoji || '😊',
+      preview: j.text,
+    }
+  })
+
+  // Display initial instruction bubble if message history is empty
+  const displayMessages = messages.length === 0 ? [INITIAL_MESSAGE] : messages
+
+  const userDisplayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Bạn'
+  const todayMood = useAppStore(s => s.todayMood)
+  const todayMoodObj = MOODS.find(m => m.value === todayMood)
+
   return (
-    <div className="flex h-[calc(100vh-64px)]">
+    <div className="flex h-[calc(100vh-96px)]">
       {/* Sidebar */}
       <aside className="hidden lg:flex flex-col w-72 bg-white border-r border-primary/20 overflow-y-auto">
         <div className="p-5 border-b border-primary/20">
@@ -143,32 +173,38 @@ export default function ChatPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-2xl">
-            <span className="text-xl">😌</span>
+            <span className="text-xl">{todayMoodObj?.emoji || '😌'}</span>
             <div>
               <p className="font-ui text-xs text-text-sub">Tâm trạng hôm nay</p>
-              <p className="font-body text-sm text-text-main font-medium">Bình thường</p>
+              <p className="font-body text-sm text-text-main font-medium">{todayMoodObj?.label || 'Bình thường'}</p>
             </div>
           </div>
         </div>
 
-        <div className="p-4">
-          <p className="font-ui text-xs text-text-sub uppercase tracking-wider mb-3">Lịch sử</p>
-          <div className="flex flex-col gap-1">
-            {SIDEBAR_HISTORY.map((h, i) => (
-              <button
-                key={i}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-3 rounded-2xl text-left transition-colors duration-200 hover:bg-primary/10',
-                  i === 0 && 'bg-primary/20'
-                )}
-              >
-                <span className="text-lg">{h.mood}</span>
-                <div className="min-w-0">
-                  <p className="font-ui text-xs text-text-sub">{h.date}</p>
-                  <p className="font-body text-sm text-text-main truncate">{h.preview}</p>
+        <div className="p-4 flex-1 flex flex-col min-h-0">
+          <p className="font-ui text-xs text-text-sub uppercase tracking-wider mb-3">Nhật ký gần đây</p>
+          <div className="flex flex-col gap-1 overflow-y-auto flex-1 min-h-0">
+            {sidebarHistory.length > 0 ? (
+              sidebarHistory.map((h, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 px-3 py-3 rounded-2xl text-left bg-primary/5 border border-transparent"
+                >
+                  <span className="text-lg shrink-0">{h.mood}</span>
+                  <div className="min-w-0">
+                    <p className="font-ui text-xs text-text-sub">{h.date}</p>
+                    <p className="font-body text-sm text-text-main truncate">{h.preview}</p>
+                  </div>
                 </div>
-              </button>
-            ))}
+              ))
+            ) : (
+              <div className="py-8 text-center px-4">
+                <p className="text-2xl mb-1">📝</p>
+                <p className="font-ui text-xs text-text-sub leading-relaxed">
+                  Chưa có nhật ký nào.<br />Hãy ghi nhật ký ở trang tiếp theo nhé!
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </aside>
@@ -187,15 +223,21 @@ export default function ChatPage() {
               <span className="font-ui text-xs text-text-sub">Đang hoạt động</span>
             </div>
           </div>
-          <button className="ml-auto p-2 rounded-xl hover:bg-primary/10 transition-colors text-text-sub">
-            <MoreHorizontal size={20} />
-          </button>
+          {messages.length > 0 && (
+            <button
+              onClick={handleClearChat}
+              title="Xóa lịch sử hội thoại"
+              className="ml-auto p-2 rounded-xl hover:bg-red-50 text-text-sub hover:text-red-600 transition-colors cursor-pointer"
+            >
+              <Trash2 size={18} />
+            </button>
+          )}
         </div>
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
           <div className="max-w-2xl mx-auto">
-            {messages.map(msg => (
+            {displayMessages.map(msg => (
               <ChatBubble key={msg.id} msg={msg} />
             ))}
             <AnimatePresence>
@@ -212,7 +254,7 @@ export default function ChatPage() {
               <button
                 key={i}
                 onClick={() => handleSend(qr.value)}
-                className="mood-chip bg-white border border-primary/40 text-text-sub hover:bg-primary/20 hover:border-primary hover:text-text-main whitespace-nowrap"
+                className="mood-chip bg-white border border-primary/40 text-text-sub hover:bg-primary/20 hover:border-primary hover:text-text-main whitespace-nowrap cursor-pointer"
               >
                 {qr.label}
               </button>
@@ -225,13 +267,13 @@ export default function ChatPage() {
           <div className="max-w-2xl mx-auto flex gap-2">
             <button
               onClick={() => handleSend('Gợi ý cho mình một bài nhạc phù hợp với tâm trạng nhé 🎵')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/60 text-text-main font-ui text-xs hover:bg-accent transition-colors duration-200"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/60 text-text-main font-ui text-xs hover:bg-accent transition-colors duration-200 cursor-pointer"
             >
               <Music size={13} /> Gợi ý nhạc
             </button>
             <button
               onClick={() => handleSend('Mình muốn ghi nhật ký về hôm nay 📝')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/30 text-text-main font-ui text-xs hover:bg-secondary/50 transition-colors duration-200"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/30 text-text-main font-ui text-xs hover:bg-secondary/50 transition-colors duration-200 cursor-pointer"
             >
               <BookOpen size={13} /> Ghi nhật ký
             </button>
@@ -263,10 +305,10 @@ export default function ChatPage() {
             <motion.button
               whileTap={{ scale: 0.92 }}
               onClick={() => handleSend()}
-              disabled={!input.trim()}
+              disabled={!input.trim() || isTyping}
               className={cn(
-                'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200',
-                input.trim()
+                'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 cursor-pointer',
+                input.trim() && !isTyping
                   ? 'bg-primary text-text-main shadow-card hover:bg-primary-dark'
                   : 'bg-primary/30 text-text-sub cursor-not-allowed'
               )}

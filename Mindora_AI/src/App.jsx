@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/organisms/Navbar'
 import HomePage from './pages/Home/HomePage'
@@ -5,8 +6,15 @@ import ChatPage from './pages/Chat/ChatPage'
 import JournalPage from './pages/Journal/JournalPage'
 import ExplorePage from './pages/Explore/ExplorePage'
 import DashboardPage from './pages/Dashboard/DashboardPage'
+import { useAppStore } from './store/useAppStore'
 
 export default function App() {
+  const initSession = useAppStore((s) => s.initSession)
+
+  useEffect(() => {
+    initSession()
+  }, [initSession])
+
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-bg flex flex-col">

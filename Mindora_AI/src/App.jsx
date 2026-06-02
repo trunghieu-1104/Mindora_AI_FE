@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/organisms/Navbar'
 import HomePage from './pages/Home/HomePage'
 import ChatPage from './pages/Chat/ChatPage'
@@ -16,7 +16,7 @@ export default function App() {
   }, [initSession])
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="min-h-screen bg-bg flex flex-col">
         <Navbar />
         <main className="flex-1">
@@ -29,6 +29,6 @@ export default function App() {
           </Routes>
         </main>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   )
 }

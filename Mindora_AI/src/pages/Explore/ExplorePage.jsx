@@ -13,28 +13,28 @@ const MOOD_FILTERS = [
 
 const MUSIC = [
   { 
-    title: 'Lofi Beats',   
+    title: 'V-Pop Lofi Chill',   
     artist: 'Spotify Editorial', 
     mood: 'calm',   
     color: 'bg-secondary/30',
-    spotifyId: '37i9dQZF1DX8UebhpiaHg6', // Lofi Beats Playlist
-    desc: 'Những giai điệu lofi nhẹ nhàng nhất giúp bạn tập trung và thư thái tâm trí.'
+    spotifyId: '37i9dQZF1DXa1r2D6luzgI', // V-Pop Lofi Chill Playlist
+    desc: 'Những bài hát V-Pop quen thuộc được phối lại theo phong cách Lofi nhẹ nhàng, êm ái.'
   },
   { 
-    title: 'Peaceful Piano',  
+    title: 'V-Pop Thư Giãn (Không Lời)',  
     artist: 'Spotify Editorial', 
     mood: 'calm',  
     color: 'bg-accent/40',
-    spotifyId: '37i9dQZF1DX4sWSpwq3LiO', // Peaceful Piano Playlist
-    desc: 'Tiếng đàn dương cầm êm dịu, giảm tải áp lực sau ngày dài mệt mỏi.'
+    spotifyId: '37i9dQZF1DX8g9mC89tS0I', // V-Pop Instrumental Piano/Guitar Playlist
+    desc: 'Tiếng đàn dương cầm và guitar acoustic mộc mạc, tĩnh tâm sâu sắc.'
   },
   { 
-    title: 'Chill Lofi Study',  
-    artist: 'Lofi Culture', 
+    title: 'V-Pop Acoustic',  
+    artist: 'Spotify Editorial', 
     mood: 'happy',  
     color: 'bg-accent/60',
-    spotifyId: '37i9dQZF1DXcBWIGmq5Z69', // Chill Lofi Study
-    desc: 'Giai điệu vui tươi, tích cực để đồng hành cùng bạn học tập và làm việc.'
+    spotifyId: '37i9dQZF1DX4Y7V7n6eGkG', // V-Pop Acoustic
+    desc: 'Giai điệu V-Pop nhẹ nhàng mộc mạc, đem lại năng lượng bình yên, ấm áp.'
   },
   { 
     title: 'Sad Lofi Beats',   
@@ -42,7 +42,7 @@ const MUSIC = [
     mood: 'sad',    
     color: 'bg-secondary/40',
     spotifyId: '37i9dQZF1DX3OgoO7uL66r', // Sad Lofi Beats
-    desc: 'Khoảng lặng ấm áp cho những ngày lòng trĩu nặng. Cứ buồn nếu bạn cần.'
+    desc: 'Những khoảng lặng ấm áp cho ngày lòng trĩu nặng. Hãy để giai điệu ôm lấy bạn.'
   },
   { 
     title: 'Lofi Drive',   
@@ -50,15 +50,15 @@ const MUSIC = [
     mood: 'energy', 
     color: 'bg-warning/30',
     spotifyId: '37i9dQZF1DX0SMICa2r2r2', // Lofi Drive Playlist
-    desc: 'Giai điệu lofi nhịp điệu nhanh hơn một chút, tiếp thêm năng lượng tích cực.'
+    desc: 'Nhịp điệu lofi năng động, tiếp thêm động lực cho ngày làm việc hứng khởi.'
   },
   { 
-    title: 'Lofi Sleep',  
-    artist: 'Dreamy Chill',   
+    title: 'Indie Việt Bình Yên',  
+    artist: 'Spotify Editorial',   
     mood: 'sleep',  
     color: 'bg-primary/20',
-    spotifyId: '37i9dQZF1DX8WY4x56mJEh', // Lofi Sleep Playlist
-    desc: 'Không gian yên tĩnh đưa bạn vào giấc ngủ ngon và mơ những giấc mơ lành.'
+    spotifyId: '37i9dQZF1DX7sQ49R4PUpu', // Indie Viet Playlist
+    desc: 'Những bản nhạc Indie Việt mộc mạc, nhẹ nhàng vỗ về bạn đi vào giấc ngủ ngon.'
   },
 ]
 

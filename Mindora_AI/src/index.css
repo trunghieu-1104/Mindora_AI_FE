@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary:        #C9A227;
+    --color-secondary:      #1B3A5C;
+    --color-accent:         #E8B830;
+    --color-bg:             #F5F0E6;
+    --color-text-main:      #1B2A3A;
+    --color-text-sub:       #4A6380;
+    --color-warning:        #E8961A;
+    --color-danger:         #D94F4F;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background-color: #F5F0E6;
+    color: #1B2A3A;
+    font-family: 'Nunito', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100svh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+    color: #1B2A3A;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-text-main font-ui font-medium px-6 py-3 rounded-full
+           hover:bg-primary-dark transition-all duration-300 ease-in-out
+           shadow-card hover:shadow-soft active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-white border-2 border-primary text-text-main font-ui font-medium px-6 py-3 rounded-full
+           hover:bg-primary-light transition-all duration-300 ease-in-out
+           shadow-card active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-text-sub font-ui font-medium px-6 py-3 rounded-full
+           hover:bg-primary-light hover:text-text-main transition-all duration-300 ease-in-out;
+  }
+
+  .card {
+    @apply bg-white rounded-3xl shadow-card p-6;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-soft hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer;
+  }
+
+  .chat-bubble-ai {
+    @apply bg-white rounded-3xl rounded-tl-sm shadow-bubble px-4 py-3 max-w-[80%]
+           text-text-main font-body text-sm leading-relaxed animate-fade-up;
+  }
+
+  .chat-bubble-user {
+    @apply bg-primary rounded-3xl rounded-tr-sm shadow-bubble px-4 py-3 max-w-[80%]
+           text-text-main font-body text-sm leading-relaxed animate-fade-up;
+  }
+
+  .input-field {
+    @apply w-full bg-white border border-primary/40 rounded-2xl px-4 py-3
+           font-body text-text-main placeholder-text-sub
+           focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20
+           transition-all duration-200;
+  }
+
+  .mood-chip {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-ui text-sm font-medium
+           cursor-pointer transition-all duration-200 select-none;
+  }
+
+  .section-title {
+    @apply font-display text-3xl md:text-4xl text-text-main leading-tight;
+  }
+
+  .section-sub {
+    @apply font-body text-text-sub text-base md:text-lg leading-relaxed;
+  }
+}

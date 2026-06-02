@@ -14,51 +14,51 @@ const MOOD_FILTERS = [
 const MUSIC = [
   { 
     title: 'V-Pop Lofi Chill',   
-    artist: 'Spotify Editorial', 
+    artist: 'Nhạc Việt Lofi Cực Chill', 
     mood: 'calm',   
     color: 'bg-secondary/30',
-    spotifyId: '37i9dQZF1DXa1r2D6luzgI', // V-Pop Lofi Chill Playlist
+    youtubeId: 'U2qL3F5n5wY', // Evergreen V-Pop Lofi Chill
     desc: 'Những bài hát V-Pop quen thuộc được phối lại theo phong cách Lofi nhẹ nhàng, êm ái.'
   },
   { 
     title: 'V-Pop Thư Giãn (Không Lời)',  
-    artist: 'Spotify Editorial', 
+    artist: 'Guitar & Piano Acoustic', 
     mood: 'calm',  
     color: 'bg-accent/40',
-    spotifyId: '37i9dQZF1DX8g9mC89tS0I', // V-Pop Instrumental Piano/Guitar Playlist
-    desc: 'Tiếng đàn dương cầm và guitar acoustic mộc mạc, tĩnh tâm sâu sắc.'
+    youtubeId: '7V2v08W8wX0', // V-Pop Instrumental Piano/Guitar
+    desc: 'Tiếng đàn dương cầm và guitar acoustic mộc mạc, giúp bạn tĩnh tâm sâu sắc.'
   },
   { 
-    title: 'V-Pop Acoustic',  
-    artist: 'Spotify Editorial', 
+    title: 'V-Pop Acoustic Chill',  
+    artist: 'Acoustic Cover Tuyển Chọn', 
     mood: 'happy',  
     color: 'bg-accent/60',
-    spotifyId: '37i9dQZF1DX4Y7V7n6eGkG', // V-Pop Acoustic
+    youtubeId: 'Xqg92XGg_dM', // V-Pop Acoustic Chill
     desc: 'Giai điệu V-Pop nhẹ nhàng mộc mạc, đem lại năng lượng bình yên, ấm áp.'
   },
   { 
-    title: 'Sad Lofi Beats',   
-    artist: 'Lofi Records',     
+    title: 'Lofi Trữ Tình Buồn',   
+    artist: 'Lofi Nhạc Trẻ Buồn',     
     mood: 'sad',    
     color: 'bg-secondary/40',
-    spotifyId: '37i9dQZF1DX3OgoO7uL66r', // Sad Lofi Beats
-    desc: 'Những khoảng lặng ấm áp cho ngày lòng trĩu nặng. Hãy để giai điệu ôm lấy bạn.'
+    youtubeId: 'ZszsHh_hTfQ', // Sad Vietnamese Lofi
+    desc: 'Những khoảng lặng ấm áp cho ngày lòng trĩu nặng. Hãy để âm nhạc xoa dịu tâm trí.'
   },
   { 
-    title: 'Lofi Drive',   
-    artist: 'Vibe Nation',     
+    title: 'Lofi Girl Live 24/7',   
+    artist: 'Lofi Girl Official',     
     mood: 'energy', 
     color: 'bg-warning/30',
-    spotifyId: '37i9dQZF1DX0SMICa2r2r2', // Lofi Drive Playlist
-    desc: 'Nhịp điệu lofi năng động, tiếp thêm động lực cho ngày làm việc hứng khởi.'
+    youtubeId: 'jfKfPfyJRdk', // Lofi Girl 24/7 Livestream (extremely stable)
+    desc: 'Nhịp điệu lofi học tập và làm việc nổi tiếng thế giới, tiếp thêm động lực tích cực.'
   },
   { 
-    title: 'Indie Việt Bình Yên',  
-    artist: 'Spotify Editorial',   
+    title: 'Lofi Sleep Radio',  
+    artist: 'Lofi Records Sleep',   
     mood: 'sleep',  
     color: 'bg-primary/20',
-    spotifyId: '37i9dQZF1DX7sQ49R4PUpu', // Indie Viet Playlist
-    desc: 'Những bản nhạc Indie Việt mộc mạc, nhẹ nhàng vỗ về bạn đi vào giấc ngủ ngon.'
+    youtubeId: '5qap5aO4i9A', // Lofi Sleep Stream (extremely stable)
+    desc: 'Không gian yên tĩnh đưa bạn vào giấc ngủ ngon và vỗ về những suy nghĩ mệt mỏi.'
   },
 ]
 
@@ -113,7 +113,7 @@ function BreathingExercise() {
 export default function ExplorePage() {
   const [activeMood, setActiveMood] = useState('calm')
   const [activeTab, setActiveTab] = useState('music')
-  const [playingId, setPlayingId] = useState(null) // Holds active spotifyId
+  const [playingId, setPlayingId] = useState(null) // Holds active youtubeId
 
   const filtered = MUSIC.filter(m => m.mood === activeMood)
 
@@ -169,10 +169,10 @@ export default function ExplorePage() {
           {/* Music Cards */}
           <motion.div layout className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
             {filtered.map((m) => {
-              const isCurrentlyPlaying = playingId === m.spotifyId
+              const isCurrentlyPlaying = playingId === m.youtubeId
               return (
                 <motion.div
-                  key={m.spotifyId}
+                  key={m.youtubeId}
                   layout
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -185,9 +185,9 @@ export default function ExplorePage() {
                 >
                   <AnimatePresence mode="wait">
                     {isCurrentlyPlaying ? (
-                      // 1. If user clicks "Listen Now", load the real Spotify Iframe player!
+                      // 1. If user clicks "Listen Now", load the real YouTube Iframe player!
                       <motion.div
-                        key="spotify-player"
+                        key="youtube-player"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
@@ -196,7 +196,7 @@ export default function ExplorePage() {
                         <div className="flex justify-between items-center mb-3">
                           <span className="font-ui text-xs font-semibold text-text-main flex items-center gap-1.5">
                             <Headphones size={14} className="animate-pulse text-primary-dark" />
-                            Đang phát...
+                            Đang phát nhạc...
                           </span>
                           <button
                             onClick={() => setPlayingId(null)}
@@ -206,14 +206,16 @@ export default function ExplorePage() {
                             <X size={16} />
                           </button>
                         </div>
-                        <div className="flex-1 rounded-2xl overflow-hidden bg-white/40">
+                        <div className="flex-1 rounded-2xl overflow-hidden bg-white/40 shadow-inner min-h-[220px]">
                           <iframe
-                            style={{ borderRadius: '16px', border: 'none' }}
-                            src={`https://open.spotify.com/embed/playlist/${m.spotifyId}?utm_source=generator&theme=0`}
+                            style={{ border: 'none' }}
                             width="100%"
                             height="100%"
-                            allowFullScreen=""
-                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                            src={`https://www.youtube.com/embed/${m.youtubeId}?autoplay=1&mute=0`}
+                            title="YouTube music player"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
                             loading="lazy"
                           />
                         </div>
@@ -241,7 +243,7 @@ export default function ExplorePage() {
                           </p>
                         </div>
                         <button
-                          onClick={() => setPlayingId(m.spotifyId)}
+                          onClick={() => setPlayingId(m.youtubeId)}
                           className="flex items-center justify-center gap-2 w-full py-2.5 bg-white/70 hover:bg-white text-text-main rounded-full font-ui text-sm font-semibold shadow-sm transition-all duration-200 cursor-pointer active:scale-97"
                         >
                           <Play size={14} /> Nghe ngay
@@ -261,10 +263,10 @@ export default function ExplorePage() {
       {activeTab === 'podcast' && (
         <div className="grid sm:grid-cols-2 gap-4">
           {[
-            { title: 'Tâm lý học dễ hiểu', ep: 'Tập 12: Kiểm soát lo âu', emoji: '🧠', spotifyId: 'show/7uG38F3wZ48kH32h5Q' },
-            { title: 'Lo-fi Stories',       ep: 'Câu chuyện buổi tối thư giãn', emoji: '🌙', spotifyId: 'show/0Z1hP5jP69F82lG43' },
-            { title: 'Thiền mỗi ngày',      ep: 'Thiền 10 phút buổi sáng lành mạnh', emoji: '🧘', spotifyId: 'show/3mY2e4jW6h8k5L321' },
-            { title: 'Sống tích cực',       ep: 'Sắp xếp lại các ngăn suy nghĩ',     emoji: '✨', spotifyId: 'show/4w9j3kL2m8G5F3290' },
+            { title: 'Tập thở & Giải tỏa lo âu', ep: 'Bài dẫn thở thiền định sâu', emoji: '🧘', youtubeId: 'aN772qZ0tL0' },
+            { title: 'Podcast: Sức khỏe tinh thần', ep: 'Tập 12: Vượt qua khủng hoảng', emoji: '🧠', youtubeId: 'W_gLgLzT5m4' },
+            { title: 'Thiền chánh niệm mỗi ngày', ep: 'Thiền định 10 phút tĩnh tâm', emoji: '✨', youtubeId: '2K3B2O8lA4o' },
+            { title: 'Sống chậm & Tích cực', ep: 'Sắp xếp lại các ngăn suy nghĩ', emoji: '🌱', youtubeId: 'yqX7L5G3d4o' },
           ].map((p, i) => {
             const isPlaying = playingId === p.title
             return (
@@ -293,12 +295,14 @@ export default function ExplorePage() {
                     </div>
                     <div className="flex-1 rounded-xl overflow-hidden min-h-[220px]">
                       <iframe
-                        style={{ borderRadius: '12px', border: 'none' }}
-                        src="https://open.spotify.com/embed/show/4rOoJ62DNZ8864rQvjypMp?utm_source=generator&theme=0" // Standard highly popular psychology show
+                        style={{ border: 'none' }}
                         width="100%"
                         height="100%"
-                        allowFullScreen=""
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        src={`https://www.youtube.com/embed/${p.youtubeId}?autoplay=1&mute=0`}
+                        title="YouTube podcast player"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen
                         loading="lazy"
                       />
                     </div>

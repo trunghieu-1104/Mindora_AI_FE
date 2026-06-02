@@ -93,7 +93,7 @@ export default function ExplorePage() {
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={cn(
-              'px-5 py-2 rounded-xl font-ui text-sm font-medium transition-all duration-200',
+              'px-5 py-2 rounded-xl font-ui text-sm font-medium transition-all duration-200 cursor-pointer',
               activeTab === tab.key
                 ? 'bg-primary text-text-main shadow-card'
                 : 'text-text-sub hover:text-text-main'
@@ -113,7 +113,7 @@ export default function ExplorePage() {
                 key={f.value}
                 onClick={() => setActiveMood(f.value)}
                 className={cn(
-                  'mood-chip whitespace-nowrap',
+                  'mood-chip whitespace-nowrap cursor-pointer',
                   activeMood === f.value
                     ? 'bg-primary text-text-main border-2 border-primary-dark'
                     : 'bg-white text-text-sub border-2 border-transparent hover:bg-primary/10'
@@ -140,7 +140,7 @@ export default function ExplorePage() {
                 <p className="font-ui text-xs text-text-sub mb-4">{m.artist}</p>
                 <button
                   onClick={() => setPlaying(playing === i ? null : i)}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/70 rounded-full font-ui text-sm text-text-main hover:bg-white transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-white/70 rounded-full font-ui text-sm text-text-main hover:bg-white transition-colors cursor-pointer"
                 >
                   {playing === i ? <Pause size={14} /> : <Play size={14} />}
                   {playing === i ? 'Dừng' : 'Nghe ngay'}
@@ -161,15 +161,15 @@ export default function ExplorePage() {
             { title: 'Thiền mỗi ngày',      ep: 'Thiền 10 phút buổi sáng', emoji: '🧘' },
             { title: 'Sống tích cực',       ep: 'Sắp xếp lại tâm trí',     emoji: '✨' },
           ].map((p, i) => (
-            <div key={i} className="card-hover flex items-center gap-4">
+            <div key={i} className="card-hover flex items-center gap-4 border border-primary/20">
               <div className="w-14 h-14 rounded-2xl bg-secondary/30 flex items-center justify-center text-3xl shrink-0">
                 {p.emoji}
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="font-body font-semibold text-text-main text-sm">{p.title}</p>
                 <p className="font-ui text-xs text-text-sub truncate">{p.ep}</p>
               </div>
-              <Play size={18} className="text-text-sub ml-auto shrink-0" />
+              <Play size={18} className="text-text-sub ml-auto shrink-0 cursor-pointer" />
             </div>
           ))}
         </div>

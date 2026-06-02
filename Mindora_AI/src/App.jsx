@@ -1,14 +1,22 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/organisms/Navbar'
 import HomePage from './pages/Home/HomePage'
 import ChatPage from './pages/Chat/ChatPage'
 import JournalPage from './pages/Journal/JournalPage'
 import ExplorePage from './pages/Explore/ExplorePage'
 import DashboardPage from './pages/Dashboard/DashboardPage'
+import { useAppStore } from './store/useAppStore'
 
 export default function App() {
+  const initSession = useAppStore((s) => s.initSession)
+
+  useEffect(() => {
+    initSession()
+  }, [initSession])
+
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="min-h-screen bg-bg flex flex-col">
         <Navbar />
         <main className="flex-1">
@@ -21,6 +29,6 @@ export default function App() {
           </Routes>
         </main>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   )
 }

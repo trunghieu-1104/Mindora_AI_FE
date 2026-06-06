@@ -57,7 +57,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-24">
           {/* Logo */}
           <NavLink to="/" className="flex items-center gap-3 font-display text-xl font-semibold text-text-main">
-            <img src="/LogoDora.png" alt="Mindora" className="h-[88px] w-[88px] object-contain" />
+            <img src="/LogoDora.png" alt="Mindora" className="h-[110px] w-[110px] object-contain" />
             Mindora
           </NavLink>
 

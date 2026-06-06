@@ -220,22 +220,24 @@ export const useAppStore = create(
       },
 
       initSession: async () => {
-        // Fetch current active session
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
-          set({ user: session.user })
-          await get().fetchUserData()
-        }
-
-        // Listen for Auth changes in realtime
-        supabase.auth.onAuthStateChange(async (event, session) => {
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
           if (session?.user) {
             set({ user: session.user })
             await get().fetchUserData()
-          } else {
-            set({ user: null, journals: [], messages: [], todayMood: null })
           }
-        })
+
+          supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) {
+              set({ user: session.user })
+              await get().fetchUserData()
+            } else {
+              set({ user: null, journals: [], messages: [], todayMood: null })
+            }
+          })
+        } catch (err) {
+          console.warn('[Mindora] Không thể kết nối Supabase, chạy ở chế độ offline:', err.message)
+        }
       }
     }),
     {

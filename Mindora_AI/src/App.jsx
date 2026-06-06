@@ -153,7 +153,7 @@ export default function App() {
                         style={{ borderRadius: '12px', border: 'none', display: 'block' }}
                         src={embedUrl}
                         width="100%"
-                        height={parsedPlayer.type === 'track' ? '80' : '260'}
+                        height={parsedPlayer.type === 'track' || parsedPlayer.type === 'episode' ? '152' : '352'}
                         frameBorder="0"
                         allowFullScreen=""
                         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"

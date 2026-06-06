@@ -34,7 +34,7 @@ const MUSIC = [
     artist: 'Pharrell Williams', 
     mood: 'happy', 
     color: 'bg-accent/30 border border-accent/20', 
-    spotifyUrl: 'https://open.spotify.com/track/60nZcImVbB7a1x5V42W0gM',
+    spotifyUrl: 'https://open.spotify.com/track/60nZcQECa03M2j49a6l86T',
     emoji: '😊'
   },
   { 
@@ -42,7 +42,7 @@ const MUSIC = [
     artist: 'Justin Timberlake', 
     mood: 'happy', 
     color: 'bg-primary/30 border border-primary/20', 
-    spotifyUrl: 'https://open.spotify.com/track/6ZazHq6s5M9jJbJ8zV6VqT',
+    spotifyUrl: 'https://open.spotify.com/track/6Zazw1PFaR2V136Gv8N7yS',
     emoji: '🕺'
   },
   { 
@@ -50,7 +50,7 @@ const MUSIC = [
     artist: 'Spotify Playlist', 
     mood: 'happy', 
     color: 'bg-secondary/10 border border-secondary/5', 
-    spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX7KNKjV01gT9',
+    spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0',
     emoji: '✨'
   },
   { 
@@ -58,7 +58,7 @@ const MUSIC = [
     artist: 'Powfu', 
     mood: 'sad', 
     color: 'bg-secondary/20 border border-secondary/10', 
-    spotifyUrl: 'https://open.spotify.com/track/7eJMw1KGmr626JUfJui3X1',
+    spotifyUrl: 'https://open.spotify.com/track/7eJMfftS33KTjuF7lTsMCx',
     emoji: '☕'
   },
   { 
@@ -66,7 +66,7 @@ const MUSIC = [
     artist: 'Adele', 
     mood: 'sad', 
     color: 'bg-secondary/10 border border-secondary/5', 
-    spotifyUrl: 'https://open.spotify.com/track/1f3yA150c2L6W97495sP81',
+    spotifyUrl: 'https://open.spotify.com/track/1zwMYof9Jc0Zq5Q43S2F7A',
     emoji: '💔'
   },
   { 
@@ -74,7 +74,7 @@ const MUSIC = [
     artist: 'Spotify Playlist', 
     mood: 'sad', 
     color: 'bg-primary/20 border border-primary/10', 
-    spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX3YSRcHn6w73',
+    spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX14421w7oM1K',
     emoji: '🌧️'
   },
   { 
@@ -82,7 +82,7 @@ const MUSIC = [
     artist: 'Avicii', 
     mood: 'energy', 
     color: 'bg-warning/20 border border-warning/10', 
-    spotifyUrl: 'https://open.spotify.com/track/0nrRP2bk19rNc0orkWPQk2',
+    spotifyUrl: 'https://open.spotify.com/track/0nrRP2bk19rLc0orkWPQk2',
     emoji: '☀️'
   },
   { 
@@ -98,7 +98,7 @@ const MUSIC = [
     artist: 'Spotify Playlist', 
     mood: 'energy', 
     color: 'bg-secondary/20 border border-secondary/10', 
-    spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX3tGo72M651H',
+    spotifyUrl: 'https://open.spotify.com/playlist/7JFgMB1L1pZfHQndfJVLrb',
     emoji: '🔥'
   },
   { 
@@ -106,15 +106,15 @@ const MUSIC = [
     artist: 'Claude Debussy', 
     mood: 'sleep', 
     color: 'bg-primary/20 border border-primary/10', 
-    spotifyUrl: 'https://open.spotify.com/track/5u5aV2U4KzXoVwQGzQf45X',
+    spotifyUrl: 'https://open.spotify.com/track/6hk5bPV8DfqIPjYXLiBl6b',
     emoji: '🌙'
   },
   { 
-    title: 'Deep Sleep Waves', 
-    artist: 'Sleep Sounds', 
+    title: 'Weightless (Ambient)', 
+    artist: 'Marconi Union', 
     mood: 'sleep', 
     color: 'bg-secondary/20 border border-secondary/10', 
-    spotifyUrl: 'https://open.spotify.com/track/7GZ3F4b4yQZscL3qW2u21t',
+    spotifyUrl: 'https://open.spotify.com/track/0qS5x1vaiEWGwImxI3LPQp',
     emoji: '🌊'
   },
   { 

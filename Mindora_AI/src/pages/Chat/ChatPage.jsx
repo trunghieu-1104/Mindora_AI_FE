@@ -137,14 +137,14 @@ export default function ChatPage() {
   const getMiaReply = (userText) => {
     const text = userText.toLowerCase()
     if (text.includes('mệt') || text.includes('kiệt sức'))
-      return 'Mình hiểu cảm giác mệt mỏi đó 🌙 Bạn có muốn nghe một bài nhạc nhẹ nhàng để thư giãn không? Hoặc kể mình nghe thêm nhé — điều gì đang khiến bạn mệt vậy?'
+      return 'Mình hiểu cảm giác mệt mỏi đó 🌙 Bạn thử nghe một bản nhạc lo-fi nhẹ nhàng để thư giãn nhé:\n"Rainy Café Lofi" - https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn\nHoặc hãy chia sẻ thêm cho mình biết điều gì đang làm bạn mệt mỏi nhé.'
     if (text.includes('buồn') || text.includes('khóc'))
-      return 'Buồn cũng được mà bạn ơi 🌧️ Đôi khi cho phép bản thân buồn là điều cần thiết. Mình ở đây lắng nghe bạn. Chuyện gì đã xảy ra vậy?'
+      return 'Buồn cũng không sao đâu bạn ơi 🌧️ Mình luôn ở đây lắng nghe bạn. Bạn thử nghe bài hát này xem có giúp vơi bớt phần nào không nhé:\n"Someone Like You" của Adele - https://open.spotify.com/track/1EzrEOXmMH3G43FST1y73H\nChuyện gì đã xảy ra vậy bạn?'
     if (text.includes('stress') || text.includes('lo lắng') || text.includes('áp lực'))
-      return 'Nghe có vẻ bạn đang chịu nhiều áp lực quá 😮‍💨 Thử thở sâu cùng mình nhé? Hít vào 4 giây... giữ 4 giây... thở ra 6 giây. Bạn cảm thấy thế nào sau khi thở?'
+      return 'Nghe có vẻ bạn đang căng thẳng quá 😮‍💨 Thử hít thở sâu cùng mình nhé? Ngoài ra, playlist acoustic êm dịu này sẽ giúp bạn dịu lại đấy:\n"Acoustic Chill" - https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO\nBạn cảm thấy thế nào sau khi nghỉ ngơi một chút?'
     if (text.includes('vui') || text.includes('hạnh phúc') || text.includes('ổn'))
-      return 'Thật tuyệt khi nghe bạn ổn! 🌸 Điều gì làm bạn vui hôm nay vậy? Kể mình nghe với!'
-    return 'Mình hiểu rồi 💙 Cảm ơn bạn đã chia sẻ với mình. Bạn có muốn nói thêm về điều này không, hay mình gợi ý một số bài nhạc phù hợp với tâm trạng của bạn?'
+      return 'Thật tuyệt vời khi thấy bạn tràn đầy năng lượng tích cực! 🌸 Hãy cùng nghe bài nhạc vui tươi này để duy trì tâm trạng tốt này nhé:\n"Happy" của Pharrell Williams - https://open.spotify.com/track/60nZcECyYwG6uJ0vT9y1z\nKể cho mình nghe điều gì đã mang lại niềm vui cho bạn hôm nay nào!'
+    return 'Mình hiểu rồi 💙 Cảm ơn bạn đã luôn tin tưởng và chia sẻ với mình. Gợi ý bạn nghe thử playlist này để thư giãn nhé:\n"Happy Beats" - https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0\nBạn muốn tâm sự thêm điều gì không?'
   }
 
   const handleSend = async (text = input.trim()) => {
@@ -266,9 +266,9 @@ export default function ChatPage() {
       </aside>
 
       {/* Chat area */}
-      <div className="flex-1 flex flex-col bg-bg">
+      <div className="flex-1 flex flex-col bg-chat-blobs relative">
         {/* Chat header */}
-        <div className="flex items-center gap-3 px-5 py-4 bg-white border-b border-primary/20">
+        <div className="flex items-center gap-3 px-5 py-4 bg-white border-b border-primary/20 z-10">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl shrink-0">
             🌸
           </div>
@@ -291,7 +291,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
+        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 bg-[#FDFBF7]/70 backdrop-blur-[2.5px]">
           <div className="max-w-2xl mx-auto">
             {displayMessages.map(msg => (
               <ChatBubble key={msg.id} msg={msg} />

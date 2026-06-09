@@ -4,18 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary:   '#C9A227',
-        secondary: '#1B3A5C',
-        accent:    '#E8B830',
-        bg:        '#F5F0E6',
-        'text-main': '#1B2A3A',
-        'text-sub':  '#4A6380',
+        primary:   '#C97B3A', // Terracotta primary
+        secondary: '#B07D58', // Sand/Clay secondary
+        accent:    '#E8A06A', // Peach accent
+        bg:        '#FDFBF7', // Warm cream background
+        'text-main': '#2E1C16', // Dark brown main text
+        'text-sub':  '#8C736C', // Muted brown subtext
         warning:   '#E8961A',
         danger:    '#D94F4F',
-        'primary-light':   '#F0D878',
-        'primary-dark':    '#A07D18',
-        'secondary-light': '#2A5888',
-        'secondary-dark':  '#0F2235',
+        'primary-light':   '#F7D6C0', // Light peach
+        'primary-dark':    '#A65E27', // Dark terracotta
+        'secondary-light': '#E6B58F', // Sand light
+        'secondary-dark':  '#1A0F0D', // Very dark brown
+        'soft-green':      '#E2F0D9', // Pastel mint/green
       },
       fontFamily: {
         display: ['"Playfair Display"', 'serif'],

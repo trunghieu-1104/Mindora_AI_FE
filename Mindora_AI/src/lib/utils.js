@@ -48,7 +48,7 @@ export function parseSpotifyUrl(url) {
   }
 
   // 2. Spotify URLs: https://open.spotify.com/track/4DqEuh61JswWk6gWq2Zp6j?si=...
-  const match = cleanUrl.match(/open\.spotify\.com\/(track|playlist|album|artist|show|episode)\/([a-zA-Z0-9]+)/);
+  const match = cleanUrl.match(/open\.spotify\.com\/(?:[a-zA-Z0-9-]+\/)?(track|playlist|album|artist|show|episode)\/([a-zA-Z0-9]+)/);
   if (match) {
     return { type: match[1], id: match[2] };
   }

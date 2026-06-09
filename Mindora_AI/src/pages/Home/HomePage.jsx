@@ -57,14 +57,15 @@ export default function HomePage() {
     <div className="overflow-x-hidden">
 
       {/* ─── HERO ─────────────────────────────────────────────── */}
-      <section className="relative min-h-[88vh] flex flex-col items-center justify-center px-4 py-20 bg-bg overflow-hidden">
-        <HeroBlobs />
+      <section className="relative min-h-[88vh] flex flex-col items-center justify-center px-4 py-16 bg-organic-pattern overflow-hidden">
+        {/* Transparent overlay to soften the pattern */}
+        <div className="absolute inset-0 bg-white/20 pointer-events-none" />
 
         <motion.div
           variants={stagger}
           initial="hidden"
           animate="show"
-          className="relative z-10 max-w-2xl mx-auto text-center"
+          className="relative z-10 max-w-2xl mx-auto text-center bg-[#FDFBF7]/75 backdrop-blur-md border border-[#EBE6DD] p-8 sm:p-12 md:p-14 rounded-[2.5rem] shadow-soft"
         >
           <motion.p
             variants={fadeUp}
@@ -75,22 +76,22 @@ export default function HomePage() {
 
           <motion.h1
             variants={fadeUp}
-            className="font-display text-[5.5rem] sm:text-[7rem] md:text-[9rem] leading-none text-text-main mb-6"
+            className="font-display text-[4.5rem] sm:text-[6rem] md:text-[7.5rem] leading-none text-primary font-bold mb-6"
           >
             GẶP MIA
           </motion.h1>
 
           <motion.p
             variants={fadeUp}
-            className="font-body text-text-sub text-base md:text-lg leading-relaxed mb-10 max-w-sm mx-auto"
+            className="font-body text-text-sub text-sm md:text-base leading-relaxed mb-10 max-w-sm mx-auto"
           >
-            Người bạn tâm lý AI — lắng nghe không phán xét, đồng hành 24/7.
+            Người bạn tâm lý AI — lắng nghe không phán xét, đồng hành cùng bạn 24/7.
           </motion.p>
 
           <motion.div variants={fadeUp}>
             <button
               onClick={() => navigate('/chat')}
-              className="inline-flex items-center gap-2 px-8 py-3.5 border-2 border-text-main rounded-full font-ui font-medium text-text-main hover:bg-text-main hover:text-bg transition-all duration-300"
+              className="inline-flex items-center gap-2 px-8 py-3.5 border-2 border-primary rounded-full font-ui font-medium text-primary hover:bg-primary hover:text-white transition-all duration-300 shadow-sm active:scale-95 cursor-pointer"
             >
               Trò chuyện với Mia <ArrowRight size={16} />
             </button>

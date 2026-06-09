@@ -4,12 +4,12 @@
 
 @layer base {
   :root {
-    --color-primary:        #C9A227;
-    --color-secondary:      #1B3A5C;
-    --color-accent:         #E8B830;
-    --color-bg:             #F5F0E6;
-    --color-text-main:      #1B2A3A;
-    --color-text-sub:       #4A6380;
+    --color-primary:        #C97B3A;
+    --color-secondary:      #B07D58;
+    --color-accent:         #E8A06A;
+    --color-bg:             #FDFBF7;
+    --color-text-main:      #2E1C16;
+    --color-text-sub:       #8C736C;
     --color-warning:        #E8961A;
     --color-danger:         #D94F4F;
   }
@@ -24,8 +24,8 @@
 
   body {
     margin: 0;
-    background-color: #F5F0E6;
-    color: #1B2A3A;
+    background-color: #FDFBF7;
+    color: #2E1C16;
     font-family: 'Nunito', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -37,13 +37,53 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif;
-    color: #1B2A3A;
+    color: #2E1C16;
+  }
+
+  /* Image Background Utilities */
+  .bg-organic-pattern {
+    background-image: url('/backgroud.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .bg-chat-blobs {
+    background-image: url('/chat.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .bg-mint-words {
+    background-image: url('/từ khóa.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .bg-explore-wave {
+    background-image: url('/Explore.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .bg-journal-notebook {
+    background-image: url('/journal.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Notebook Lined Paper style */
+  .notebook-paper {
+    background: #fff;
+    background-image: linear-gradient(#e1dcd6 1px, transparent 1px);
+    background-size: 100% 2rem;
+    line-height: 2rem;
+    padding: 0.5rem 1.5rem;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary text-text-main font-ui font-medium px-6 py-3 rounded-full
+    @apply bg-primary text-white font-ui font-medium px-6 py-3 rounded-full
            hover:bg-primary-dark transition-all duration-300 ease-in-out
            shadow-card hover:shadow-soft active:scale-95;
   }

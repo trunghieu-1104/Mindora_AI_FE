@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/organisms/Navbar'
+import SpotifyPlayer from './components/organisms/SpotifyPlayer'
 import HomePage from './pages/Home/HomePage'
 import ChatPage from './pages/Chat/ChatPage'
 import JournalPage from './pages/Journal/JournalPage'
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
           </Routes>
         </main>
+        <SpotifyPlayer />
       </div>
     </HashRouter>
   )

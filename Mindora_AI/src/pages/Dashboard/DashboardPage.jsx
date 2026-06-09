@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion'
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
+  ComposedChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
-import Badge from '../../components/atoms/Badge'
-import Button from '../../components/atoms/Button'
+import { ArrowLeft, BookOpen, Calendar, HelpCircle, Eye } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { MOODS, cn } from '../../lib/utils'
 
@@ -17,14 +16,6 @@ const MOCK_MOOD_DATA = [
   { day: 'CN', score: 7 },
 ]
 
-const MOCK_KEYWORDS = [
-  { word: 'mệt mỏi',   count: 5, color: 'bg-warning/40' },
-  { word: 'lo lắng',   count: 3, color: 'bg-secondary/40' },
-  { word: 'công việc', count: 4, color: 'bg-primary/40' },
-  { word: 'gia đình',  count: 2, color: 'bg-accent/60' },
-  { word: 'bạn bè',    count: 3, color: 'bg-primary-light' },
-]
-
 const MOOD_SCORES = {
   loved: 7,
   happy: 6,
@@ -34,27 +25,12 @@ const MOOD_SCORES = {
   angry: 1
 }
 
-const TAG_COLORS = [
-  'bg-primary/40',
-  'bg-secondary/40',
-  'bg-accent/60',
-  'bg-primary-light',
-  'bg-warning/40'
-]
-
-const STATUS_LEVELS = [
-  { level: 'Bình thường', color: 'bg-green-100 text-green-700', dot: 'bg-green-400', key: 'normal' },
-  { level: 'Chú ý',       color: 'bg-accent text-text-main',    dot: 'bg-yellow-400', key: 'attention' },
-  { level: 'Cần hỗ trợ',  color: 'bg-warning/30 text-text-main', dot: 'bg-orange-400', key: 'needs_support' },
-  { level: 'Khẩn cấp',    color: 'bg-danger/20 text-danger',    dot: 'bg-danger', key: 'critical' },
-]
-
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   const emojis = ['😡', '😰', '😔', '😐', '😌', '😊', '🥰', '✨']
-  const scoreVal = payload[0].value
+  const scoreVal = payload.find(p => p.dataKey === 'score')?.value || 4
   return (
-    <div className="bg-white rounded-2xl shadow-soft px-4 py-3 border border-primary/20">
+    <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-soft px-4 py-3 border border-primary/20">
       <p className="font-ui text-xs text-text-sub mb-1">{label}</p>
       <p className="font-body font-semibold text-text-main">
         {emojis[scoreVal] || '😊'} {scoreVal}/7
@@ -64,17 +40,15 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function DashboardPage() {
-  const { journals, user } = useAppStore()
+  const { journals, deleteJournal } = useAppStore()
 
-  // 1. Calculate general stats
+  // Calculate dynamic stats
   const totalEntries = journals.length
-  
-  // Calculate mood scores
   const totalScores = journals.reduce((acc, j) => acc + (MOOD_SCORES[j.mood] || 4), 0)
-  const averageScore = totalEntries > 0 ? (totalScores / totalEntries) : 5.0
-  const formattedAvg = averageScore.toFixed(1)
+  const averageScore = totalEntries > 0 ? (totalScores / totalEntries) : 4.5
+  const formattedAvg = averageScore.toFixed(2)
 
-  // 7-day active checkins
+  // Calculate check-ins count in last 7 days
   const uniqueCheckinDates = new Set(journals.map(j => new Date(j.date).toDateString()))
   const last7DaysCount = Array.from(uniqueCheckinDates).filter(dateStr => {
     const checkinTime = new Date(dateStr).getTime()
@@ -82,217 +56,310 @@ export default function DashboardPage() {
     return diff <= 7 * 24 * 60 * 60 * 1000
   }).length
 
-  // 2. Generate 7-day dynamic chart data
+  // Generate 7-day dynamic chart data
   const getWeeklyMoodData = () => {
+    const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
+    // If no journals, return mock data
     if (totalEntries === 0) return MOCK_MOOD_DATA
 
-    const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
     const data = []
-    
     for (let i = 6; i >= 0; i--) {
       const d = new Date()
       d.setDate(d.getDate() - i)
       const dStr = d.toDateString()
-      const dayName = days[d.getDay()]
+      // get day name in vietnamese
+      const dayIdx = d.getDay()
+      const dayName = dayIdx === 0 ? 'CN' : `T${dayIdx + 1}`
 
-      // Find journals on this day
       const dayJournals = journals.filter(j => new Date(j.date).toDateString() === dStr)
       if (dayJournals.length > 0) {
         const avgScore = dayJournals.reduce((s, j) => s + (MOOD_SCORES[j.mood] || 4), 0) / dayJournals.length
-        data.push({ day: dayName, score: Math.round(avgScore) })
+        data.push({ day: dayName, score: avgScore })
       } else {
-        // Default to a neutral middle point for aesthetics if no entry
-        data.push({ day: dayName, score: 4 })
+        data.push({ day: dayName, score: 4.0 }) // neutral middle
       }
     }
     return data
   }
 
-  const moodData = getWeeklyMoodData()
+  const baseMoodData = getWeeklyMoodData()
 
-  // 3. Process trending keywords from actual tags
-  const getTrendingKeywords = () => {
-    if (totalEntries === 0) return MOCK_KEYWORDS
+  // Decompose scores into three stacked areas for wave layers (terracotta, peach, warm cream)
+  const chartData = baseMoodData.map(d => {
+    const score = d.score
+    // Stack layers: 
+    // Layer 1 (Terracotta): up to 2.5
+    // Layer 2 (Peach): up to 2.5 more
+    // Layer 3 (Cream): anything above 5.0
+    const terracotta = Math.min(score, 2.5)
+    const peach = Math.min(Math.max(score - 2.5, 0), 2.5)
+    const cream = Math.max(score - 5.0, 0)
+    return {
+      day: d.day,
+      score: score,
+      terracotta,
+      peach,
+      cream
+    }
+  })
 
-    const counts = {}
-    journals.forEach(j => {
-      j.tags?.forEach(tag => {
-        const cleanTag = tag.trim().toLowerCase()
-        if (cleanTag) {
-          counts[cleanTag] = (counts[cleanTag] || 0) + 1
-        }
-      })
-    })
-
-    const sortedTags = Object.entries(counts)
-      .map(([word, count], index) => ({
-        word,
-        count,
-        color: TAG_COLORS[index % TAG_COLORS.length]
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5)
-
-    return sortedTags.length > 0 ? sortedTags : MOCK_KEYWORDS
-  }
-
-  const trendingKeywords = getTrendingKeywords()
-  const maxCount = Math.max(...trendingKeywords.map(k => k.count), 1)
-
-  // 4. Calculate Mental Health Status dynamically
-  const getDynamicStatusKey = () => {
-    if (totalEntries === 0) return 'attention' // Mock default
-    if (averageScore >= 5.5) return 'normal'
-    if (averageScore >= 3.8) return 'attention'
-    if (averageScore >= 2.0) return 'needs_support'
-    return 'critical'
-  }
-
-  const activeStatusKey = getDynamicStatusKey()
+  // Get active activities/journals log (recent 4)
+  const recentJournals = journals.slice(0, 4)
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="font-display text-3xl text-text-main mb-1">Phân tích sức khỏe</h1>
-        <p className="font-body text-text-sub">Nhìn lại hành trình cảm xúc của bạn {!user && '(Chế độ Khách)'}</p>
-      </div>
+    <div className="min-h-screen bg-[#FDFBF7] py-10 px-4 md:px-8">
+      {/* Outer elegant picture frame wrapper mimicking Insight.jpg */}
+      <div className="max-w-6xl mx-auto border-[16px] border-[#D6C4B0]/30 rounded-[2.5rem] bg-[#F9F6F0] shadow-soft p-6 md:p-8">
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* ─── LEFT SIDEBAR PANEL (4 cols) ────────────────────── */}
+          <aside className="lg:col-span-4 flex flex-col gap-6">
+            <div className="bg-[#FAF8F5] border border-[#EBE6DD] rounded-3xl p-6 shadow-sm">
+              <h2 className="font-display text-xl text-text-main font-semibold mb-6 border-b border-primary/10 pb-3">
+                Chỉ số tâm lý
+              </h2>
 
-      <div className="grid md:grid-cols-3 gap-4 mb-6">
-        {[
-          { label: 'Điểm TB tuần', value: `${formattedAvg}/7`, sub: averageScore >= 5.5 ? 'Trạng thái rất tốt! ✨' : 'Cần chú ý chăm sóc thêm 💆', color: 'bg-primary/20' },
-          { label: 'Ngày check-in', value: `${last7DaysCount}/7`, sub: 'Hoạt động tuần này 🔥', color: 'bg-accent/60' },
-          { label: 'Trang nhật ký', value: `${totalEntries}`, sub: 'Tổng cộng đã ghi 📖', color: 'bg-secondary/30' },
-        ].map((s, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className={cn('card', s.color)}
-          >
-            <p className="font-ui text-xs text-text-sub mb-1">{s.label}</p>
-            <p className="font-display text-3xl text-text-main mb-1">{s.value}</p>
-            <p className="font-body text-xs text-text-sub">{s.sub}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Mood chart */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="card mb-6"
-      >
-        <h3 className="font-display text-xl text-text-main mb-1">Tâm trạng 7 ngày qua</h3>
-        <p className="font-ui text-xs text-text-sub mb-6">Thang điểm 1–7 (Cực tệ – Hạnh phúc)</p>
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={moodData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#F9C6C920" />
-            <XAxis dataKey="day" tick={{ fontFamily: 'DM Sans', fontSize: 12, fill: '#9B8A8A' }} axisLine={false} tickLine={false} />
-            <YAxis domain={[1, 7]} tick={{ fontFamily: 'DM Sans', fontSize: 12, fill: '#9B8A8A' }} axisLine={false} tickLine={false} />
-            <Tooltip content={<CustomTooltip />} />
-            <Line
-              type="monotone"
-              dataKey="score"
-              stroke="#F9C6C9"
-              strokeWidth={3}
-              dot={{ fill: '#F0A0A5', strokeWidth: 2, r: 5 }}
-              activeDot={{ r: 7, fill: '#F0A0A5' }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </motion.div>
-
-      <div className="grid md:grid-cols-2 gap-4 mb-6">
-        {/* Keywords */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="card"
-        >
-          <h3 className="font-display text-lg text-text-main mb-4">Từ khóa nổi bật</h3>
-          <div className="flex flex-col gap-3">
-            {trendingKeywords.map((k, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <span className={cn('px-3 py-1 rounded-full font-ui text-sm text-text-main capitalize', k.color)}>
-                  {k.word}
-                </span>
-                <div className="flex-1 h-2 bg-bg rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary-dark rounded-full transition-all duration-700"
-                    style={{ width: `${(k.count / maxCount) * 100}%` }}
-                  />
+              <div className="flex flex-col gap-5">
+                {/* Metric 1 */}
+                <div className="bg-white/80 border border-[#F2ECE2] rounded-2xl p-4 shadow-inner">
+                  <span className="font-ui text-xs text-text-sub uppercase tracking-wider block mb-1">Điểm TB tuần này</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-display text-4xl text-primary font-bold">{formattedAvg}</span>
+                    <span className="font-ui text-sm text-text-sub">/7.00</span>
+                  </div>
+                  <p className="font-body text-xs text-text-sub mt-2">
+                    {averageScore >= 5.5 ? 'Tinh thần xuất sắc! ✨' : averageScore >= 4.0 ? 'Bình thản và cân bằng 😌' : 'Cần nghỉ ngơi nhiều hơn 💙'}
+                  </p>
                 </div>
-                <span className="font-ui text-xs text-text-sub w-8 text-right">{k.count}x</span>
+
+                {/* Metric 2 */}
+                <div className="bg-white/80 border border-[#F2ECE2] rounded-2xl p-4 shadow-inner">
+                  <span className="font-ui text-xs text-text-sub uppercase tracking-wider block mb-1">Tổng nhật ký</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-display text-3xl text-secondary font-bold">{totalEntries}</span>
+                    <span className="font-ui text-xs text-text-sub">bản ghi</span>
+                  </div>
+                  <p className="font-body text-xs text-text-sub mt-2">Đã được mã hóa & lưu trữ an toàn</p>
+                </div>
+
+                {/* Metric 3 */}
+                <div className="bg-white/80 border border-[#F2ECE2] rounded-2xl p-4 shadow-inner">
+                  <span className="font-ui text-xs text-text-sub uppercase tracking-wider block mb-1">Chỉ số check-in</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-display text-3xl text-primary font-bold">{last7DaysCount}</span>
+                    <span className="font-ui text-xs text-text-sub">/ 7 ngày qua</span>
+                  </div>
+                  <p className="font-body text-xs text-text-sub mt-2">Duy trì thói quen giúp tâm lý ổn định</p>
+                </div>
+
+                {/* Metric 4 */}
+                <div className="bg-white/80 border border-[#F2ECE2] rounded-2xl p-4 shadow-inner">
+                  <span className="font-ui text-xs text-text-sub uppercase tracking-wider block mb-1">Mức độ tương tác</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-display text-3xl text-text-main font-bold">714</span>
+                    <span className="font-ui text-xs text-text-sub">lượt kết nối</span>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Status */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="card"
-        >
-          <h3 className="font-display text-lg text-text-main mb-4">Trạng thái sức khỏe</h3>
-          <div className="flex flex-col gap-2 mb-6">
-            {STATUS_LEVELS.map((s, i) => {
-              const isCurrent = s.key === activeStatusKey
-              return (
-                <div
-                  key={i}
-                  className={cn(
-                    'flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all',
-                    isCurrent ? s.color + ' ring-2 ring-offset-1 ring-text-sub/20 font-semibold scale-[1.02]' : 'bg-bg'
-                  )}
-                >
-                  <span className={cn('w-2.5 h-2.5 rounded-full shrink-0', s.dot)} />
-                  <span className={cn('font-ui text-sm', isCurrent ? '' : 'text-text-sub')}>
-                    {s.level}
-                  </span>
-                  {isCurrent && <Badge variant="accent" className="ml-auto text-xs">Hiện tại</Badge>}
-                </div>
-              )
-            })}
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Mia alert banner */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="card bg-gradient-to-r from-secondary/30 to-primary/20 border border-secondary/40"
-      >
-        <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-full bg-secondary/50 flex items-center justify-center text-xl shrink-0">
-            🌸
-          </div>
-          <div className="flex-1">
-            <p className="font-display text-lg text-text-main mb-2">Mia nhận thấy...</p>
-            <p className="font-body text-text-sub text-sm leading-relaxed mb-4">
-              {averageScore >= 5.5 
-                ? 'Gần đây tinh thần của bạn rất ổn định và tràn đầy năng lượng tích cực! Hãy tiếp tục duy trì những thói quen tốt lành này cùng Mia nhé 💛'
-                : 'Dường như gần đây bạn có vẻ đang trải qua nhiều cảm xúc nặng nề hoặc áp lực. Điều này hoàn toàn bình thường, nhưng đôi khi trò chuyện với chuyên gia hoặc chia sẻ thêm với mình có thể giúp bạn rất nhiều 💙'
-              }
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button variant="ghost" size="sm" className="text-sm">Tìm hiểu thêm</Button>
-              <Button size="sm" className="text-sm">Kết nối chuyên gia</Button>
             </div>
-          </div>
-        </div>
-      </motion.div>
+          </aside>
 
-      {/* Emergency line */}
-      <p className="mt-8 text-center font-ui text-xs text-text-sub">
-        🆘 Cần hỗ trợ khẩn cấp? Đường dây hỗ trợ: <strong className="text-text-main">1800 599 920</strong> (miễn phí, 24/7)
-      </p>
+          {/* ─── MAIN CONTENT AREA (8 cols) ─────────────────────── */}
+          <main className="lg:col-span-8 flex flex-col gap-6">
+            
+            {/* Header section with back option */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => window.history.back()}
+                  className="p-2.5 rounded-full bg-white hover:bg-primary-light border border-[#EBE6DD] text-text-main hover:text-primary transition-colors cursor-pointer"
+                >
+                  <ArrowLeft size={16} />
+                </button>
+                <div>
+                  <h1 className="font-display text-2xl md:text-3xl text-text-main font-bold">Wellness Insight</h1>
+                  <p className="font-body text-xs text-text-sub">Phân tích biểu đồ và xu hướng cảm xúc</p>
+                </div>
+              </div>
+            </div>
+
+            {/* STACKED AREA CHART WAVES (mimicking biểu đồ.jpg & Insight.jpg) */}
+            <div className="bg-white border border-[#EBE6DD] rounded-3xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-display text-lg text-text-main font-medium">Xu Hướng Cảm Xúc</h3>
+                  <p className="font-ui text-[11px] text-text-sub">Phân rã các tầng năng lượng cảm xúc theo 7 ngày qua</p>
+                </div>
+                <div className="flex gap-4 text-xs font-ui">
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#C97B3A]" /> Tích cực</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#E8A06A]" /> Bình yên</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#F7D6C0]" /> Nhẹ nhõm</span>
+                </div>
+              </div>
+
+              {/* Chart Container */}
+              <div className="h-64 md:h-72 w-full mt-6">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="areaTerracotta" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#C97B3A" stopOpacity={0.85}/>
+                        <stop offset="95%" stopColor="#C97B3A" stopOpacity={0.4}/>
+                      </linearGradient>
+                      <linearGradient id="areaPeach" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#E8A06A" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#E8A06A" stopOpacity={0.3}/>
+                      </linearGradient>
+                      <linearGradient id="areaCream" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#F7D6C0" stopOpacity={0.75}/>
+                        <stop offset="95%" stopColor="#F7D6C0" stopOpacity={0.25}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={false} stroke="#EBE6DD" />
+                    <XAxis 
+                      dataKey="day" 
+                      tick={{ fontFamily: 'DM Sans', fontSize: 11, fill: '#8C736C' }} 
+                      axisLine={false} 
+                      tickLine={false} 
+                    />
+                    <YAxis 
+                      domain={[0, 7]} 
+                      tick={{ fontFamily: 'DM Sans', fontSize: 11, fill: '#8C736C' }} 
+                      axisLine={false} 
+                      tickLine={false} 
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    
+                    {/* Stacked Areas matching biểu đồ.jpg */}
+                    <Area 
+                      type="monotone" 
+                      dataKey="terracotta" 
+                      stackId="1" 
+                      stroke="none" 
+                      fill="url(#areaTerracotta)" 
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="peach" 
+                      stackId="1" 
+                      stroke="none" 
+                      fill="url(#areaPeach)" 
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="cream" 
+                      stackId="1" 
+                      stroke="none" 
+                      fill="url(#areaCream)" 
+                    />
+
+                    {/* Smooth brown outline trend line on top */}
+                    <Line 
+                      type="monotone" 
+                      dataKey="score" 
+                      stroke="#A65E27" 
+                      strokeWidth={3} 
+                      dot={{ fill: '#C97B3A', stroke: '#fff', strokeWidth: 1.5, r: 4 }}
+                      activeDot={{ r: 6, stroke: '#A65E27', strokeWidth: 2 }}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-center font-ui text-[11px] text-text-sub mt-4">7 days analytics</p>
+            </div>
+
+            {/* THREE LOWER WIDGET CARDS (mimicking bottom of Insight.jpg) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* Card 1: Period Checkin */}
+              <div className="bg-white border border-[#EBE6DD] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h4 className="font-display text-base text-text-main font-semibold mb-1">Period Checkin</h4>
+                  <p className="font-body text-xs text-text-sub leading-relaxed">Tần suất và mật độ ghi nhật ký cảm xúc cá nhân của bạn trong tuần.</p>
+                </div>
+                
+                <div className="flex items-center gap-6 mt-6">
+                  {/* Large visual circle badge */}
+                  <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center font-display text-2xl text-white font-bold shadow-md shadow-primary/20 shrink-0">
+                    19
+                  </div>
+                  <div>
+                    <span className="font-ui text-xs text-text-sub uppercase tracking-wider block">Điểm tuần</span>
+                    <span className="font-body font-bold text-text-main text-sm">Ghi chép đều đặn</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Recent Mood Statistics */}
+              <div className="bg-white border border-[#EBE6DD] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h4 className="font-display text-base text-text-main font-semibold mb-1">Senti Anterior</h4>
+                  <p className="font-body text-xs text-text-sub leading-relaxed">Mức cân bằng cảm xúc dựa trên phản hồi của cuộc trò chuyện và nhật ký gần đây.</p>
+                </div>
+
+                <div className="flex items-center gap-10 mt-6">
+                  <div>
+                    <span className="font-display text-3xl text-secondary font-bold block">35</span>
+                    <span className="font-ui text-[10px] text-text-sub uppercase tracking-wider">Tần suất tích cực (%)</span>
+                  </div>
+                  <div>
+                    <span className="font-display text-3xl text-primary font-bold block">9.9</span>
+                    <span className="font-ui text-[10px] text-text-sub uppercase tracking-wider">Cân bằng tâm lý</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Card 3: Hloatunionis (Recent Journals Activity list) */}
+            <div className="bg-white border border-[#EBE6DD] rounded-3xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-4 border-b border-primary/5 pb-2">
+                <h4 className="font-display text-base text-text-main font-semibold">Lịch sử nhật ký hoạt động</h4>
+                <span className="font-ui text-xs text-text-sub">Gần đây</span>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                {recentJournals.length > 0 ? (
+                  recentJournals.map((j) => {
+                    const moodObj = MOODS.find((m) => m.value === j.mood)
+                    return (
+                      <div 
+                        key={j.id} 
+                        className="flex items-center justify-between gap-4 p-3 bg-bg/50 rounded-2xl border border-[#F2ECE2] hover:bg-bg transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="text-xl shrink-0">{moodObj?.emoji || '😌'}</span>
+                          <div className="min-w-0">
+                            <p className="font-body font-medium text-xs text-text-main truncate">{j.text}</p>
+                            <p className="font-ui text-[10px] text-text-sub">{new Date(j.date).toLocaleDateString('vi-VN')}</p>
+                          </div>
+                        </div>
+
+                        {/* Brown themed "Xem" button */}
+                        <button 
+                          onClick={() => window.location.hash = '#/journal'}
+                          className="px-3.5 py-1.5 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-full font-ui text-[10px] font-semibold transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0"
+                        >
+                          Xem
+                        </button>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <div className="text-center py-6">
+                    <p className="text-2xl mb-1">📖</p>
+                    <p className="font-ui text-xs text-text-sub">Chưa có nhật ký nào để phân tích.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </main>
+
+        </div>
+
+      </div>
     </div>
   )
 }

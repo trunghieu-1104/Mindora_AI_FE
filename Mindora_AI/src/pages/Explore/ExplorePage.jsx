@@ -30,22 +30,6 @@ const MUSIC = [
     emoji: '🎸'
   },
   { 
-    title: 'Happy', 
-    artist: 'Pharrell Williams', 
-    mood: 'happy', 
-    color: 'bg-accent/30 border border-accent/20', 
-    spotifyUrl: 'https://open.spotify.com/track/60nZcQECa03M2j49a6l86T',
-    emoji: '😊'
-  },
-  { 
-    title: 'Can\'t Stop the Feeling!', 
-    artist: 'Justin Timberlake', 
-    mood: 'happy', 
-    color: 'bg-primary/30 border border-primary/20', 
-    spotifyUrl: 'https://open.spotify.com/track/6Zazw1PFaR2V136Gv8N7yS',
-    emoji: '🕺'
-  },
-  { 
     title: 'Happy Beats', 
     artist: 'Spotify Playlist', 
     mood: 'happy', 
@@ -60,22 +44,6 @@ const MUSIC = [
     color: 'bg-secondary/20 border border-secondary/10', 
     spotifyUrl: 'https://open.spotify.com/track/7eJMfftS33KTjuF7lTsMCx',
     emoji: '☕'
-  },
-  { 
-    title: 'Someone Like You', 
-    artist: 'Adele', 
-    mood: 'sad', 
-    color: 'bg-secondary/10 border border-secondary/5', 
-    spotifyUrl: 'https://open.spotify.com/track/1zwMYof9Jc0Zq5Q43S2F7A',
-    emoji: '💔'
-  },
-  { 
-    title: 'Sad Crying Playlist', 
-    artist: 'Spotify Playlist', 
-    mood: 'sad', 
-    color: 'bg-primary/20 border border-primary/10', 
-    spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX14421w7oM1K',
-    emoji: '🌧️'
   },
   { 
     title: 'Wake Me Up', 
@@ -376,9 +344,7 @@ export default function ExplorePage() {
       {activeTab === 'podcast' && (
         <div className="grid sm:grid-cols-2 gap-4 animate-fade-in">
           {[
-            { title: 'Tâm lý học dễ hiểu', ep: 'Tập 12: Kiểm soát lo âu', emoji: '🧠', spotifyUrl: 'https://open.spotify.com/episode/5ZgqB8F2e4vUjQ6K7k7Hn3' },
             { title: 'Lo-fi Stories',       ep: 'Câu chuyện buổi tối',     emoji: '🌙', spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS' },
-            { title: 'Thiền mỗi ngày',      ep: 'Thiền 10 phút buổi sáng', emoji: '🧘', spotifyUrl: 'https://open.spotify.com/playlist/46L5oW3F1VdF4S1r7y8k2S' },
             { title: 'Sống tích cực',       ep: 'Sắp xếp lại tâm trí',     emoji: '✨', spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS' },
           ].map((p, i) => {
             const isCurrentPlaying = playingItem && playingItem.spotifyUrl === p.spotifyUrl

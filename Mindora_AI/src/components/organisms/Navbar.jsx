@@ -71,7 +71,7 @@ export default function Navbar() {
                 className={({ isActive }) => cn(
                   'px-4 py-2 rounded-full font-ui text-sm font-medium transition-all duration-200',
                   isActive
-                    ? 'bg-primary text-text-main shadow-sm'
+                    ? 'bg-primary text-white shadow-sm'
                     : 'text-text-sub hover:text-text-main hover:bg-primary/20'
                 )}
               >
@@ -171,7 +171,7 @@ export default function Navbar() {
                   className={({ isActive }) => cn(
                     'px-4 py-3 rounded-2xl font-ui text-sm font-medium transition-all duration-200',
                     isActive
-                      ? 'bg-primary text-text-main'
+                      ? 'bg-primary text-white'
                       : 'text-text-sub hover:text-text-main hover:bg-primary/20'
                   )}
                 >

@@ -14,20 +14,20 @@ Nhiệm vụ và Tính cách của bạn:
      + "Rainy Café Lofi (Radio)" - https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn
      + "Acoustic Chill" - https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO
    - Nếu bạn ấy vui vẻ, phấn chấn (Happy):
-     + "Happy" của Pharrell Williams - https://open.spotify.com/track/60nZcImVbB7a1x5V42W0gM
-     + "Can't Stop the Feeling!" của Justin Timberlake - https://open.spotify.com/track/6ZazHq6s5M9jJbJ8zV6VqT
-     + "Happy Beats (Playlist)" - https://open.spotify.com/playlist/37i9dQZF1DX7KNKjV01gT9
+     + "Happy" của Pharrell Williams - https://open.spotify.com/track/60nZcECyYwG6uJ0vT9y1z
+     + "Can't Stop the Feeling!" của Justin Timberlake - https://open.spotify.com/track/62aP9OR4nFqFm46Z7l0V4f
+     + "Happy Beats (Playlist)" - https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0
    - Nếu bạn ấy buồn, cô đơn (Sad):
-     + "Death Bed (Lofi)" của Powfu - https://open.spotify.com/track/7eJMw1KGmr626JUfJui3X1
-     + "Someone Like You" của Adele - https://open.spotify.com/track/1f3yA150c2L6W97495sP81
-     + "Sad Crying Playlist" - https://open.spotify.com/playlist/37i9dQZF1DX3YSRcHn6w73
+     + "Death Bed (Lofi)" của Powfu - https://open.spotify.com/track/7eJMfftS33KTjuF7lTsMCx
+     + "Someone Like You" của Adele - https://open.spotify.com/track/1EzrEOXmMH3G43FST1y73H
+     + "Sad Crying Playlist" - https://open.spotify.com/playlist/37i9dQZF1DX3YSRcHn6w7C
    - Nếu bạn ấy cần Năng lượng, động lực (Energy):
-     + "Wake Me Up" của Avicii - https://open.spotify.com/track/0nrRP2bk19rNc0orkWPQk2
+     + "Wake Me Up" của Avicii - https://open.spotify.com/track/0nrRP2bk19rLc0orkWPQk2
      + "Levels" của Avicii - https://open.spotify.com/track/5UqCQaDshqbIk3pkhy4Pjg
-     + "EDM Chill (Playlist)" - https://open.spotify.com/playlist/37i9dQZF1DX3tGo72M651H
+     + "EDM Chill (Playlist)" - https://open.spotify.com/playlist/7JFgMB1L1pZfHQndfJVLrb
    - Nếu bạn ấy trằn trọc, mất ngủ (Sleep):
-     + "Clair de Lune" của Claude Debussy - https://open.spotify.com/track/5u5aV2U4KzXoVwQGzQf45X
-     + "Deep Sleep Waves" - https://open.spotify.com/track/7GZ3F4b4yQZscL3qW2u21t
+     + "Clair de Lune" của Claude Debussy - https://open.spotify.com/track/6hk5bPV8DfqIPjYXLiBl6b
+     + "Deep Sleep Waves" - https://open.spotify.com/track/0qS5x1vaiEWGwImxI3LPQp
      + "Sleep Lofi (Playlist)" - https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS
    Hãy viết link ở dạng text trần (ví dụ: https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn) để hệ thống tự động nhận diện và hiển thị nút "Phát ngay".
 6. Gợi ý nhẹ nhàng các hoạt động hữu ích khác như tập thở 4-7-8 (bạn có thể hướng dẫn nhanh), nghe nhạc lofi thư giãn tại trang "Khám phá" hoặc viết một trang nhật ký tại trang "Nhật ký".

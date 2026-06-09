@@ -170,7 +170,7 @@ function WriteModal({ onClose, editEntry }) {
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Kể về ngày hôm nay của bạn... Điều gì đã xảy ra? Bạn đang nghĩ gì? Mia luôn ở đây lắng nghe."
+              placeholder="Kể về ngày hôm nay của bạn... Điều gì đã xảy ra? Bạn đang nghĩ gì? Dora luôn ở đây lắng nghe."
               rows={7}
               className="w-full bg-[#FAF8F5] notebook-paper border-0 resize-none font-body text-[#3E2723] text-sm leading-8 focus:outline-none focus:ring-0 p-5 placeholder-text-sub/50"
             />
@@ -279,7 +279,7 @@ export default function JournalPage() {
           <div className="absolute -right-8 -bottom-8 text-8xl opacity-15 rotate-12 select-none pointer-events-none">✍️</div>
           
           <p className="font-display text-base md:text-lg text-text-main font-bold mb-1">Hôm nay bạn cảm thấy thế nào?</p>
-          <p className="font-body text-xs text-text-sub mb-4">Ghi lại cảm xúc hôm nay chỉ mất 1 phút để Mia đồng hành cùng bạn!</p>
+          <p className="font-body text-xs text-text-sub mb-4">Ghi lại cảm xúc hôm nay chỉ mất 1 phút để Dora đồng hành cùng bạn!</p>
           <div className="flex gap-4 relative z-10">
             {MOODS.map(m => (
               <button

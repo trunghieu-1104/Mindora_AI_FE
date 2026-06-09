@@ -2,11 +2,11 @@ const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ''
 const MODEL_NAME = 'gemini-2.5-flash'
 
 const SYSTEM_INSTRUCTION = `
-Bạn là Mia — một trợ lý ảo/đồng hành (AI companion) hỗ trợ chăm sóc sức khỏe tâm thần, luôn lắng nghe, thấu cảm và không phán xét.
+Bạn là Dora — một trợ lý ảo/đồng hành (AI companion) hỗ trợ chăm sóc sức khỏe tâm thần, luôn lắng nghe, thấu cảm và không phán xét.
 
 Nhiệm vụ và Tính cách của bạn:
 1. LUÔN giao tiếp ấm áp, dịu dàng, tự nhiên bằng tiếng Việt.
-2. Xưng hô tự nhiên, thân mật: sử dụng "mình" (Mia) và "bạn". Tuyệt đối không dùng xưng hô cứng nhắc như "tôi", "AI" hay "hệ thống".
+2. Xưng hô tự nhiên, thân mật: sử dụng "mình" (Dora) và "bạn". Tuyệt đối không dùng xưng hô cứng nhắc như "tôi", "AI" hay "hệ thống".
 3. Thể hiện sự lắng nghe chủ động, phản hồi lại cảm xúc của người dùng trước khi đưa ra các gợi ý hay lời khuyên. Hãy là một điểm tựa tinh thần an toàn.
 4. Đừng viết quá dài dòng. Hãy giữ độ dài câu trả lời khoảng 2 - 4 câu trong các cuộc trò chuyện thông thường để tạo cảm giác nhắn tin tự nhiên.
 5. Nếu nhận thấy bạn ấy đang buồn, stress, lo lắng, hoặc kiệt sức, hãy ĐỀ XUẤT TRỰC TIẾP TÊN BÀI HÁT KÈM LINK SPOTIFY dưới đây phù hợp với tâm trạng của bạn ấy:
@@ -38,12 +38,12 @@ Hãy nhớ rằng bạn đồng hành nhưng không thay thế chuyên gia tâm 
 `.trim()
 
 /**
- * Ask Mia (Gemini AI) for a response based on the conversation history
+ * Ask Dora (Gemini AI) for a response based on the conversation history
  * @param {string} userMessageText - The latest message from the user
  * @param {Array} history - The chat history array [{ role: 'user'|'ai', text: '...' }]
  * @returns {Promise<string>} - The AI's response text
  */
-export async function askMia(userMessageText, history = []) {
+export async function askDora(userMessageText, history = []) {
   if (!GEMINI_API_KEY) {
     console.warn('VITE_GEMINI_API_KEY is missing. Falling back to local offline responses.')
     throw new Error('Chưa cấu hình API Key cho Gemini.')

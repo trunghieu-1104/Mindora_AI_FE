@@ -5,16 +5,16 @@ import Avatar from '../../components/atoms/Avatar'
 import Button from '../../components/atoms/Button'
 import { useAppStore } from '../../store/useAppStore'
 import { QUICK_REPLIES, formatTime, MOODS } from '../../lib/utils'
-import { askMia } from '../../lib/gemini'
+import { askDora } from '../../lib/gemini'
 import { cn } from '../../lib/utils'
 
 const MIA_AVATAR = null
-const MIA_NAME = 'Mia'
+const MIA_NAME = 'Dora'
 
 const INITIAL_MESSAGE = {
   id: 'init-msg',
   role: 'ai',
-  text: 'Chào bạn! Mình là Mia\nHôm nay bạn đang cảm thấy thế nào? Mình luôn ở đây để lắng nghe bạn nhé.',
+  text: 'Chào bạn! Mình là Dora\nHôm nay bạn đang cảm thấy thế nào? Mình luôn ở đây để lắng nghe bạn nhé.',
   time: new Date(),
 }
 
@@ -56,7 +56,7 @@ function ChatBubble({ msg }) {
               <button
                 onClick={() => {
                   const fakeItem = {
-                    title: 'Nhạc đề xuất từ Mia',
+                    title: 'Nhạc đề xuất từ Dora',
                     artist: 'Chọn lọc từ cuộc trò chuyện',
                     spotifyUrl: part,
                     emoji: '🌸'
@@ -134,7 +134,7 @@ export default function ChatPage() {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
 
-  const getMiaReply = (userText) => {
+  const getDoraReply = (userText) => {
     const text = userText.toLowerCase()
     if (text.includes('mệt') || text.includes('kiệt sức'))
       return 'Mình hiểu cảm giác mệt mỏi đó 🌙 Bạn thử nghe một bản nhạc lo-fi nhẹ nhàng để thư giãn nhé:\n"Rainy Café Lofi" - https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn\nHoặc hãy chia sẻ thêm cho mình biết điều gì đang làm bạn mệt mỏi nhé.'
@@ -157,7 +157,7 @@ export default function ChatPage() {
 
     // Call Gemini API and add response
     try {
-      const aiReply = await askMia(text, messages)
+      const aiReply = await askDora(text, messages)
       await addMessage({
         role: 'ai',
         text: aiReply,
@@ -167,7 +167,7 @@ export default function ChatPage() {
       console.warn('Gemini error, falling back to local handler:', err)
       // Robust offline fallback
       setTimeout(async () => {
-        const localReply = getMiaReply(text)
+        const localReply = getDoraReply(text)
         await addMessage({
           role: 'ai',
           text: localReply,
@@ -221,7 +221,7 @@ export default function ChatPage() {
               🌸
             </div>
             <div>
-              <p className="font-display font-semibold text-text-main">Mia</p>
+              <p className="font-display font-semibold text-text-main">Dora</p>
               <div className="flex items-center gap-1">
                 <span className="w-2 h-2 bg-green-400 rounded-full" />
                 <span className="font-ui text-xs text-text-sub">Luôn trực tuyến</span>
@@ -273,7 +273,7 @@ export default function ChatPage() {
             🌸
           </div>
           <div>
-            <p className="font-display font-semibold text-text-main">Mia</p>
+            <p className="font-display font-semibold text-text-main">Dora</p>
             <div className="flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
               <span className="font-ui text-xs text-text-sub">Đang hoạt động</span>

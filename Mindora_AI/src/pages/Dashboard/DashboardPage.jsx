@@ -1,8 +1,7 @@
-import { motion } from 'framer-motion'
 import {
   ComposedChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
-import { ArrowLeft, BookOpen, Calendar, HelpCircle, Eye } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { MOODS, cn } from '../../lib/utils'
 
@@ -360,6 +359,7 @@ export default function DashboardPage() {
         </div>
 
       </div>
+
     </div>
   )
 }

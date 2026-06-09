@@ -9,8 +9,7 @@ import { useAppStore } from '../../store/useAppStore'
 import { cn } from '../../lib/utils'
 
 const NAV_LINKS = [
-  { to: '/',          label: 'Trang chủ' },
-  { to: '/chat',      label: 'Chat' },
+  { to: '/chat',      label: 'Chat với Dora' },
   { to: '/journal',   label: 'Nhật ký' },
   { to: '/explore',   label: 'Khám phá' },
   { to: '/dashboard', label: 'Phân tích' },
@@ -25,6 +24,7 @@ export default function Navbar() {
   const { user, logout } = useAppStore()
   const location = useLocation()
   const dropdownRef = useRef(null)
+  const [scrolled, setScrolled] = useState(false)
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -36,6 +36,15 @@ export default function Navbar() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  // Track scroll position to switch navbar style
+  useEffect(() => {
+    if (location.pathname !== '/') return
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [location.pathname])
 
   const openAuth = (mode) => {
     setAuthMode(mode)
@@ -51,12 +60,24 @@ export default function Navbar() {
 
   const userDisplayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Người dùng'
 
+  const isHome = location.pathname === '/'
+  // transparent only when at top of home page
+  const isTransparent = isHome && !scrolled
+
   return (
-    <nav className="sticky top-0 z-50 bg-bg/80 backdrop-blur-md border-b border-primary/20">
+    <nav className={cn(
+      'top-0 z-50 transition-all duration-300',
+      isHome
+        ? cn('fixed w-full', scrolled ? 'bg-bg/95 backdrop-blur-md border-b border-primary/20 shadow-sm' : 'bg-transparent')
+        : 'sticky bg-bg/80 backdrop-blur-md border-b border-primary/20'
+    )}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-24">
           {/* Logo */}
-          <NavLink to="/" className="flex items-center gap-3 font-display text-xl font-semibold text-text-main">
+          <NavLink to="/" className={cn(
+            'flex items-center gap-3 font-display text-xl font-semibold',
+            isTransparent ? 'text-white' : 'text-text-main'
+          )}>
             <img src="/LogoDora.png" alt="Mindora" className="h-[110px] w-[110px] object-contain" />
             Mindora
           </NavLink>
@@ -70,9 +91,13 @@ export default function Navbar() {
                 end={to === '/'}
                 className={({ isActive }) => cn(
                   'px-4 py-2 rounded-full font-ui text-sm font-medium transition-all duration-200',
-                  isActive
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'text-text-sub hover:text-text-main hover:bg-primary/20'
+                  isTransparent
+                    ? isActive
+                      ? 'bg-white/20 text-white'
+                      : 'text-white/80 hover:text-white hover:bg-white/15'
+                    : isActive
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-text-sub hover:text-text-main hover:bg-primary/20'
                 )}
               >
                 {label}
@@ -121,12 +146,28 @@ export default function Navbar() {
               </div>
             ) : (
               <>
-                <Button variant="ghost" size="sm" className="text-sm py-2" onClick={() => openAuth('login')}>
+                <button
+                  onClick={() => openAuth('login')}
+                  className={cn(
+                    'px-5 py-2 rounded-full font-ui text-sm font-medium border transition-all duration-200',
+                    isTransparent
+                      ? 'border-white text-white hover:bg-white/15'
+                      : 'border-text-sub text-text-sub hover:bg-primary/10 hover:border-primary hover:text-text-main'
+                  )}
+                >
                   Đăng nhập
-                </Button>
-                <Button size="sm" className="text-sm py-2 animate-pulse" onClick={() => openAuth('signup')}>
-                  Bắt đầu ngay
-                </Button>
+                </button>
+                <button
+                  onClick={() => openAuth('signup')}
+                  className={cn(
+                    'px-5 py-2 rounded-full font-ui text-sm font-medium border transition-all duration-200',
+                    isTransparent
+                      ? 'border-white text-white hover:bg-white/15'
+                      : 'bg-primary border-primary text-white hover:bg-primary/90'
+                  )}
+                >
+                  Đăng ký
+                </button>
               </>
             )}
           </div>

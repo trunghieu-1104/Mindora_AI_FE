@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ChevronDown, Ear, Heart, Lightbulb } from 'lucide-react'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -12,43 +12,6 @@ const stagger = {
   show: { transition: { staggerChildren: 0.13 } },
 }
 
-function HeroBlobs() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-      <svg
-        className="absolute w-full h-full"
-        viewBox="0 0 1440 860"
-        preserveAspectRatio="xMidYMid slice"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* Large main blob — warm terracotta right */}
-        <path
-          d="M820,30 C1010,0 1380,80 1440,290 C1500,500 1310,710 1100,755 C890,800 680,670 640,490 C600,310 630,60 820,30Z"
-          fill="#C97B3A"
-          opacity="0.78"
-        />
-        {/* Mid blob — lighter orange */}
-        <path
-          d="M660,180 C770,90 980,130 1080,290 C1180,450 1060,650 850,675 C640,700 490,565 495,400 C500,235 550,270 660,180Z"
-          fill="#D9905C"
-          opacity="0.55"
-        />
-        {/* Small bottom-left accent */}
-        <path
-          d="M170,760 C280,690 440,715 490,800 C540,885 440,930 305,910 C170,890 60,830 170,760Z"
-          fill="#E8A06A"
-          opacity="0.48"
-        />
-        {/* Tiny top-left accent */}
-        <path
-          d="M-40,90 C60,40 160,75 185,175 C210,275 125,345 10,325 C-105,305 -140,140 -40,90Z"
-          fill="#C97B3A"
-          opacity="0.38"
-        />
-      </svg>
-    </div>
-  )
-}
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -57,73 +20,116 @@ export default function HomePage() {
     <div className="overflow-x-hidden">
 
       {/* ─── HERO ─────────────────────────────────────────────── */}
-      <section className="relative min-h-[88vh] flex flex-col items-center justify-center px-4 py-16 bg-organic-pattern overflow-hidden">
-        {/* Transparent overlay to soften the pattern */}
-        <div className="absolute inset-0 bg-white/20 pointer-events-none" />
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden">
+        {/* Animated background */}
+        <div className="absolute inset-0 bg-organic-pattern animate-ken-burns pointer-events-none" />
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 
         <motion.div
           variants={stagger}
           initial="hidden"
           animate="show"
-          className="relative z-10 max-w-2xl mx-auto text-center bg-[#FDFBF7]/75 backdrop-blur-md border border-[#EBE6DD] p-8 sm:p-12 md:p-14 rounded-[2.5rem] shadow-soft"
+          className="relative z-10 max-w-2xl mx-auto text-center"
         >
           <motion.p
             variants={fadeUp}
-            className="font-ui text-text-sub text-xs uppercase tracking-widest mb-5"
+            className="font-ui text-white/80 text-xs uppercase tracking-widest mb-6"
           >
-            Bắt đầu hành trình tâm lý của bạn
+            AI Companion cho sức khỏe tâm thần
           </motion.p>
 
           <motion.h1
             variants={fadeUp}
-            className="font-display text-[4.5rem] sm:text-[6rem] md:text-[7.5rem] leading-none text-primary font-bold mb-6"
+            className="font-display text-[4rem] sm:text-[6rem] md:text-[8rem] leading-none text-white font-bold mb-4"
           >
-            GẶP MIA
+            GẶP DORA
           </motion.h1>
 
           <motion.p
             variants={fadeUp}
-            className="font-body text-text-sub text-sm md:text-base leading-relaxed mb-10 max-w-sm mx-auto"
+            className="font-display text-xl sm:text-2xl md:text-3xl italic text-white/90 mb-6"
           >
-            Người bạn tâm lý AI — lắng nghe không phán xét, đồng hành cùng bạn 24/7.
+            Người đồng hành tâm trí của bạn
+          </motion.p>
+
+          <motion.p
+            variants={fadeUp}
+            className="font-body text-white/75 text-sm md:text-base leading-relaxed mb-10 max-w-md mx-auto"
+          >
+            Lắng nghe, thấu hiểu và đồng hành cùng bạn vượt qua những khoảnh khắc khó khăn.
+            Mỗi ngày một chút, tốt hơn một chút.
           </motion.p>
 
           <motion.div variants={fadeUp}>
             <button
               onClick={() => navigate('/chat')}
-              className="inline-flex items-center gap-2 px-8 py-3.5 border-2 border-primary rounded-full font-ui font-medium text-primary hover:bg-primary hover:text-white transition-all duration-300 shadow-sm active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-2 px-8 py-3.5 bg-white rounded-full font-ui font-medium text-text-main hover:bg-white/90 transition-all duration-300 shadow-md active:scale-95 cursor-pointer"
             >
-              Trò chuyện với Mia <ArrowRight size={16} />
+              Bắt đầu trò chuyện <ArrowRight size={16} />
             </button>
           </motion.div>
         </motion.div>
+
+        {/* Down arrow indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
+        >
+          <ChevronDown size={28} />
+        </motion.div>
       </section>
 
-      {/* ─── ABOUT MIA ────────────────────────────────────────── */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-3xl mx-auto text-center">
+      {/* ─── ABOUT DORA ───────────────────────────────────────── */}
+      <section className="py-28 px-4 bg-white">
+        <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="font-display text-3xl md:text-4xl text-text-main leading-snug mb-6">
-              Mia không chỉ là một chatbot —{' '}
-              <span className="italic text-primary-dark">có ở là người bạn lắng nghe bạn</span>
+            <span className="inline-block px-4 py-1.5 bg-primary/10 rounded-full font-ui text-xs text-primary uppercase tracking-widest mb-6">
+              AI Companion
+            </span>
+
+            <h2 className="font-display text-3xl md:text-5xl text-text-main leading-snug mb-6">
+              Dora không chỉ là một chatbot —{' '}
+              <span className="italic text-primary">cô ấy là người bạn lắng nghe bạn</span>
             </h2>
-            <p className="font-body text-text-sub text-base leading-relaxed mb-8 max-w-xl mx-auto">
-              Dù bạn đang chịu áp lực, lo âu hay chỉ muốn có ai đó để tâm sự —
-              Mia luôn sẵn sàng, không phán xét, không bao giờ mệt mỏi.
+
+            <p className="font-body text-text-sub text-base md:text-lg leading-relaxed mb-14 max-w-2xl mx-auto">
+              Được xây dựng dựa trên các nguyên lý tâm lý học tích cực và liệu pháp nhận thức hành vi (CBT),
+              Dora đồng hành cùng bạn trên hành trình chăm sóc sức khỏe tinh thần mỗi ngày —
+              nhẹ nhàng, không phán xét, luôn sẵn sàng.
             </p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              {['Tâm sự', 'Nhật ký', 'Thư giãn', 'Phân tích cảm xúc'].map((tag) => (
-                <span
-                  key={tag}
-                  className="px-5 py-2 bg-primary/15 rounded-full font-ui text-sm text-text-main"
-                >
-                  {tag}
-                </span>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                {
+                  icon: <Ear size={22} strokeWidth={1.5} />,
+                  title: 'Lắng nghe',
+                  desc: 'Phản hồi thấu cảm, hiểu được cảm xúc của bạn',
+                },
+                {
+                  icon: <Heart size={22} strokeWidth={1.5} />,
+                  title: 'Đồng hành',
+                  desc: 'Luôn ở đây mỗi khi bạn cần một người để trò chuyện',
+                },
+                {
+                  icon: <Lightbulb size={22} strokeWidth={1.5} />,
+                  title: 'Gợi ý',
+                  desc: 'Bài tập nhỏ, lời khuyên thiết thực mỗi ngày',
+                },
+              ].map((item) => (
+                <div key={item.title} className="bg-bg rounded-3xl p-8 text-center">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4">
+                    {item.icon}
+                  </div>
+                  <h3 className="font-display text-lg text-text-main font-semibold mb-2">{item.title}</h3>
+                  <p className="font-body text-text-sub text-sm leading-relaxed">{item.desc}</p>
+                </div>
               ))}
             </div>
           </motion.div>
@@ -133,61 +139,63 @@ export default function HomePage() {
       {/* ─── FEATURE CARDS ────────────────────────────────────── */}
       <section className="py-20 px-4 bg-bg">
         <div className="max-w-6xl mx-auto">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="font-display text-3xl text-text-main mb-10"
-          >
-            Đồng hành cùng bạn 🎊
-          </motion.h2>
+          <div className="text-center mb-10">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="font-display text-3xl md:text-4xl text-text-main mb-3"
+            >
+              Đồng hành cùng bạn 
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="font-body text-text-sub text-base max-w-lg mx-auto"
+            >
+              Mỗi tính năng được thiết kế để đồng hành cùng bạn trên hành trình
+              chăm sóc sức khỏe tinh thần
+            </motion.p>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                title: 'Tâm chăm sóc',
-                desc:  'Theo dõi sức khỏe tâm thần hàng ngày cùng Mia',
-                bg:    '#DBEAFE',
-                iconBg:'#93C5FD',
-                emoji: '🌸',
+                bg: 'bg-chat-blobs',
+                title: 'Trò chuyện',
+                desc: 'Tâm sự với Dora bất cứ lúc nào bạn cần. Nhận phản hồi thấu cảm và những lời khuyên nhẹ nhàng.',
+                to: '/chat',
               },
               {
+                bg: 'bg-journal-notebook',
                 title: 'Nhật ký',
-                desc:  'Ghi lại cảm xúc và suy nghĩ của bạn mỗi ngày',
-                bg:    '#FEF3C7',
-                iconBg:'#FCD34D',
-                emoji: '📖',
+                desc: 'Ghi lại cảm xúc và suy nghĩ mỗi ngày để hiểu bản thân rõ hơn.',
+                to: '/journal',
               },
               {
-                title: 'Nhạc & Thư giãn',
-                desc:  'Gợi ý nhạc theo tâm trạng — lo-fi, thiền, năng lượng',
-                bg:    '#F5F5F4',
-                iconBg:'#D6D3D1',
-                emoji: '🎵',
+                bg: 'bg-explore-wave',
+                title: 'Thiền & Nhạc',
+                desc: 'Khám phá nhạc và bài thiền được gợi ý theo tâm trạng của bạn.',
+                to: '/explore',
               },
-            ].map((card, i) => (
+            ].map((card) => (
               <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="rounded-3xl overflow-hidden cursor-pointer group hover:shadow-soft transition-all duration-300"
-                style={{ backgroundColor: card.bg }}
+                key={card.title}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.25 }}
+                onClick={() => navigate(card.to)}
+                className={`relative h-[420px] rounded-3xl overflow-hidden cursor-pointer group ${card.bg}`}
+                style={{ backgroundSize: 'cover', backgroundPosition: 'center' }}
               >
-                <div className="h-52 flex items-center justify-center relative overflow-hidden">
-                  <div
-                    className="w-28 h-28 rounded-3xl flex items-center justify-center text-6xl shadow-card group-hover:scale-110 transition-transform duration-500"
-                    style={{ backgroundColor: card.iconBg }}
-                  >
-                    {card.emoji}
-                  </div>
-                  <div className="absolute top-4 right-4 w-10 h-10 rounded-full opacity-25" style={{ backgroundColor: card.iconBg }} />
-                  <div className="absolute bottom-4 left-4 w-6 h-6 rounded-full opacity-20" style={{ backgroundColor: card.iconBg }} />
-                </div>
-                <div className="p-6">
-                  <h3 className="font-display text-xl text-text-main mb-2">{card.title}</h3>
-                  <p className="font-body text-text-sub text-sm leading-relaxed">{card.desc}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                
+                <div className="absolute bottom-6 left-6 right-6">
+                  <h3 className="font-display text-2xl text-white font-semibold mb-1">{card.title}</h3>
+                  <p className="font-body text-white/75 text-sm leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    {card.desc}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -196,83 +204,125 @@ export default function HomePage() {
       </section>
 
       {/* ─── EMOTIONS ─────────────────────────────────────────── */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-14 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <p className="font-ui text-text-sub text-xs uppercase tracking-widest mb-4">Phân tích cảm xúc</p>
-            <h2 className="font-display text-3xl md:text-4xl text-text-main leading-tight mb-6">
-              Hiểu rõ hơn<br />cảm xúc của bạn
-            </h2>
-            <p className="font-body text-text-sub text-base leading-relaxed mb-8">
-              Mia theo dõi và phân tích cảm xúc qua các cuộc trò chuyện và nhật ký.
-              Nhận ra những pattern để chủ động chăm sóc bản thân tốt hơn.
-            </p>
+      <section className="py-20 px-4 bg-bg">
+        <div className="max-w-6xl mx-auto">
+
+          {/* Top row: title + mood tags */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <p className="font-display italic text-primary text-sm mb-1">phân tích cảm xúc</p>
+              <h2 className="font-display text-4xl md:text-5xl text-text-main font-bold leading-tight">
+                Hiểu rõ cảm xúc
+              </h2>
+              <p className="font-display italic text-primary text-3xl md:text-4xl mt-1">mỗi ngày</p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {[
+                { emoji: '😊', label: 'Vui vẻ' },
+                { emoji: '😌', label: 'Bình yên' },
+                { emoji: '😟', label: 'Lo âu' },
+                { emoji: '🙏', label: 'Biết ơn' },
+              ].map((tag) => (
+                <span key={tag.label} className="flex items-center gap-1.5 px-4 py-2 bg-white rounded-full font-ui text-sm text-text-main shadow-sm border border-primary/10">
+                  {tag.emoji} {tag.label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* 4 image cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            {[
+              { img: '/bieu_do.jpg',    title: 'Biểu đồ tâm trạng', sub: 'Theo dõi 7 ngày' },
+              { img: '/tu_khoa.jpg',    title: 'Từ khóa nổi bật',   sub: 'Chủ đề thường gặp' },
+              { img: '/Mood_Picker.jpg', title: 'Mood picker',       sub: 'Chọn tâm trạng' },
+              { img: '/Insight.jpg',     title: 'Insight tuần',      sub: 'Phân tích & gợi ý' },
+            ].map((card) => (
+              <motion.div
+                key={card.title}
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.25 }}
+                onClick={() => navigate('/dashboard')}
+                className="rounded-3xl overflow-hidden cursor-pointer group bg-white shadow-sm hover:shadow-soft transition-shadow duration-300"
+              >
+                <div
+                  className="h-[280px] bg-cover bg-center"
+                  style={{ backgroundImage: `url('${card.img}')` }}
+                />
+                <div className="px-4 py-3">
+                  <p className="font-display text-base text-text-main font-semibold">{card.title}</p>
+                  <p className="font-body text-xs text-text-sub mt-0.5">{card.sub}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* CTA link */}
+          <div className="text-center">
             <button
               onClick={() => navigate('/dashboard')}
-              className="inline-flex items-center gap-2 font-ui font-medium text-text-main group hover:gap-4 transition-all duration-300"
+              className="inline-flex items-center gap-2 font-ui font-semibold text-primary hover:gap-3 transition-all duration-300"
             >
-              Xem phân tích của bạn
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              Xem phân tích đầy đủ <ArrowRight size={16} />
             </button>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="bg-bg rounded-3xl p-6 shadow-card"
-          >
-            <p className="font-ui text-sm font-semibold text-text-main mb-4">Tâm trạng tuần này</p>
-            <div className="flex items-end gap-2 h-24 mb-3">
-              {[55, 75, 42, 88, 65, 82, 60].map((h, i) => (
-                <div
-                  key={i}
-                  className="flex-1 rounded-t-lg transition-all duration-500"
-                  style={{ height: `${h}%`, backgroundColor: h > 70 ? '#C9A227' : h > 50 ? '#E8B83088' : '#4A638033' }}
-                />
-              ))}
-            </div>
-            <div className="flex justify-between mb-5">
-              {['T2','T3','T4','T5','T6','T7','CN'].map((d) => (
-                <span key={d} className="font-ui text-xs text-text-sub flex-1 text-center">{d}</span>
-              ))}
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { label: 'Tích cực', value: '68%', emoji: '😊', color: '#C9A22722' },
-                { label: 'Lo âu',    value: '12%', emoji: '😟', color: '#D94F4F18' },
-                { label: 'Bình thản',value: '15%', emoji: '😌', color: '#1B3A5C18' },
-                { label: 'Mệt mỏi', value: '5%',  emoji: '😴', color: '#4A638018' },
-              ].map((item) => (
-                <div key={item.label} className="rounded-2xl p-3 text-center" style={{ backgroundColor: item.color }}>
-                  <span className="text-xl">{item.emoji}</span>
-                  <p className="font-ui text-xs text-text-sub mt-1">{item.label}</p>
-                  <p className="font-display text-lg text-text-main font-semibold">{item.value}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
         </div>
       </section>
 
       {/* ─── LARGE PHOTO ──────────────────────────────────────── */}
-      <section className="relative h-[58vh] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-100 via-stone-200 to-stone-300" />
-        <div className="absolute inset-0 flex items-center justify-center opacity-30">
-          <span className="text-[12rem] leading-none select-none">🧘‍♀️</span>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-text-main/70 via-text-main/20 to-transparent px-6 pb-10 pt-24">
-          <div className="max-w-6xl mx-auto">
-            <p className="font-display text-white text-2xl md:text-4xl max-w-md leading-snug">
-              Hãy tìm thấy bình yên<br />cùng Mindora
-            </p>
-          </div>
+      <section
+        className="relative h-[110vh] flex items-center justify-center overflow-hidden"
+        style={{
+          backgroundImage: "url('/BK.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+        }}
+      >
+        {/* Semi-transparent dark overlay */}
+        <div className="absolute inset-0 bg-black/45 pointer-events-none" />
+
+        {/* Center content */}
+        <div className="relative z-10 text-center px-4">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="font-display text-4xl sm:text-5xl md:text-6xl text-white font-bold leading-tight mb-6 uppercase"
+          >
+            Bắt đầu hành trình
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.15 }}
+            className="font-body text-white/80 text-lg md:text-xl mb-10"
+          >
+            Mỗi ngày một bước nhỏ<br />cùng Dora đồng hành bên bạn
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <button
+              onClick={() => navigate('/chat')}
+              className="inline-flex items-center gap-3 pl-2 pr-6 py-2 bg-text-main/90 hover:bg-text-main rounded-full transition-colors duration-300 cursor-pointer group"
+            >
+              <span className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-lg shrink-0">
+                💬
+              </span>
+              <span className="font-ui font-semibold text-white text-base">Trò chuyện với Dora ngay</span>
+              <ArrowRight size={16} className="text-white/70 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </motion.div>
         </div>
       </section>
 
@@ -291,7 +341,7 @@ export default function HomePage() {
             </h2>
             <p className="font-body text-text-sub text-base leading-relaxed mb-8">
               Từ những cuộc trò chuyện nhỏ đến những khoảnh khắc khó khăn nhất —
-              Mia luôn ở đây, sẵn sàng lắng nghe và đồng hành cùng bạn mỗi ngày.
+              Dora luôn ở đây, sẵn sàng lắng nghe và đồng hành cùng bạn mỗi ngày.
             </p>
             <button
               onClick={() => navigate('/chat')}
@@ -308,23 +358,35 @@ export default function HomePage() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="bg-bg rounded-3xl p-6 shadow-card"
           >
+            {/* Chat header */}
+            <div className="flex items-center gap-3 pb-4 mb-4 border-b border-primary/10">
+              <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center font-display text-sm font-bold text-white">D</div>
+              <div>
+                <p className="font-ui text-sm font-semibold text-text-main">Dora</p>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+                  <span className="font-ui text-xs text-text-sub">Đang hoạt động</span>
+                </span>
+              </div>
+            </div>
+
             <div className="flex flex-col gap-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center font-display text-sm text-text-main">M</div>
+                <div className="w-8 h-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center font-display text-sm font-bold text-white">D</div>
                 <div className="bg-white rounded-3xl rounded-tl-sm p-3 max-w-[76%] shadow-bubble">
-                  <p className="font-body text-sm text-text-main">Xin chào! Hôm nay bạn cảm thấy thế nào? 🌸</p>
+                  <p className="font-body text-sm text-text-main">Xin chào! Hôm nay bạn cảm thấy thế nào?</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 flex-row-reverse">
-                <div className="w-8 h-8 rounded-full bg-secondary flex-shrink-0" />
-                <div className="bg-primary rounded-3xl rounded-tr-sm p-3 max-w-[76%] shadow-bubble">
-                  <p className="font-body text-sm text-text-main">Mình khá ổn, cảm ơn Mia! 😊</p>
+                <div className="w-8 h-8 rounded-full bg-secondary/60 flex-shrink-0" />
+                <div className="bg-primary/20 rounded-3xl rounded-tr-sm p-3 max-w-[76%] shadow-bubble">
+                  <p className="font-body text-sm text-text-main">Mình hơi căng thẳng, công việc nhiều quá.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center font-display text-sm text-text-main">M</div>
+                <div className="w-8 h-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center font-display text-sm font-bold text-white">D</div>
                 <div className="bg-white rounded-3xl rounded-tl-sm p-3 max-w-[76%] shadow-bubble">
-                  <p className="font-body text-sm text-text-main">Thật tuyệt! Bạn có muốn chia sẻ điều gì không? ✨</p>
+                  <p className="font-body text-sm text-text-main">Mình nghe bạn. Hãy kể thêm về điều đó nhé.</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 pl-11">
@@ -332,12 +394,12 @@ export default function HomePage() {
                   {[0, 1, 2].map((i) => (
                     <div
                       key={i}
-                      className="w-2 h-2 rounded-full bg-text-sub/40 animate-pulse"
-                      style={{ animationDelay: `${i * 0.2}s` }}
+                      className="w-1.5 h-1.5 rounded-full bg-text-sub/40 animate-bounce"
+                      style={{ animationDelay: `${i * 0.15}s` }}
                     />
                   ))}
                 </div>
-                <span className="font-ui text-xs text-text-sub">Mia đang gõ...</span>
+                <span className="font-ui text-xs text-text-sub">Dora đang nhập...</span>
               </div>
             </div>
           </motion.div>
@@ -388,26 +450,33 @@ export default function HomePage() {
                 <div className="bg-white/10 rounded-2xl p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-5 h-5 rounded-full bg-primary/70" />
-                    <span className="font-ui text-white/65 text-xs">Mia</span>
+                    <span className="font-ui text-white/65 text-xs">Dora</span>
                   </div>
-                  <p className="font-body text-white/75 text-xs">Chào bạn! Hôm nay bạn thế nào? 🌸</p>
+                  <p className="font-body text-white/75 text-xs">Chào bạn! Hôm nay bạn thế nào?</p>
                 </div>
                 <div className="bg-primary/30 rounded-2xl p-3 ml-5">
                   <p className="font-body text-white/75 text-xs">Mình đang lo lắng về công việc...</p>
                 </div>
                 <div className="bg-white/10 rounded-2xl p-3">
-                  <p className="font-body text-white/75 text-xs">Mình hiểu. Bạn muốn kể thêm không? 💙</p>
+                  <p className="font-body text-white/75 text-xs">Mình hiểu. Bạn muốn kể thêm không?</p>
                 </div>
                 <div className="mt-auto bg-white/10 rounded-2xl p-3">
-                  <p className="font-ui text-white/55 text-xs mb-2">Tâm trạng hôm nay</p>
-                  <div className="flex gap-2 justify-around text-base">
-                    {['😊', '😐', '😟', '😴', '😤'].map((e, i) => (
-                      <span
-                        key={i}
-                        className={`transition-transform ${i === 0 ? 'scale-125' : 'opacity-40'}`}
-                      >
-                        {e}
-                      </span>
+                  <p className="font-ui text-white/55 text-xs mb-3">Tâm trạng hôm nay</p>
+                  <div className="flex gap-2 justify-around">
+                    {[
+                      { label: 'Vui', color: '#C97B3A' },
+                      { label: 'Bình', color: '#8C736C' },
+                      { label: 'Lo', color: '#6B7280' },
+                      { label: 'Buồn', color: '#4B5563' },
+                      { label: 'Mệt', color: '#374151' },
+                    ].map((m, i) => (
+                      <div key={m.label} className="flex flex-col items-center gap-1">
+                        <div
+                          className={`w-5 h-5 rounded-full transition-transform ${i === 0 ? 'scale-125 ring-2 ring-white/40' : 'opacity-40'}`}
+                          style={{ backgroundColor: m.color }}
+                        />
+                        <span className={`font-ui text-[9px] ${i === 0 ? 'text-white/80' : 'text-white/30'}`}>{m.label}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -430,7 +499,7 @@ export default function HomePage() {
             {[
               {
                 title: 'Tính năng',
-                links: ['Chat với Mia', 'Nhật ký', 'Khám phá nhạc', 'Phân tích cảm xúc'],
+                links: ['Chat với Dora', 'Nhật ký', 'Khám phá nhạc', 'Phân tích cảm xúc'],
               },
               {
                 title: 'Hỗ trợ',

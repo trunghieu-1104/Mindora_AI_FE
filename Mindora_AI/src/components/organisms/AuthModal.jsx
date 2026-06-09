@@ -74,8 +74,8 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
               </h2>
               <p className="font-body text-xs text-text-sub mt-1">
                 {mode === 'login'
-                  ? 'Hãy đăng nhập để đồng hành cùng Mia và lưu lại hành trình cảm xúc'
-                  : 'Hãy tạo tài khoản để đồng hành cùng Mia ngay hôm nay'}
+                  ? 'Hãy đăng nhập để đồng hành cùng Dora và lưu lại hành trình cảm xúc'
+                  : 'Hãy tạo tài khoản để đồng hành cùng Dora ngay hôm nay'}
               </p>
             </div>
 

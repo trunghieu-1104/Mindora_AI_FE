@@ -51,18 +51,21 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-bg rounded-4xl shadow-soft w-full max-w-md overflow-hidden relative border border-primary/20 p-6 md:p-8"
+            className="bg-organic-pattern rounded-4xl shadow-soft w-full max-w-md overflow-hidden relative border border-primary/20 p-6 md:p-8"
           >
+            {/* Blurred brand overlay for readability */}
+            <div className="absolute inset-0 bg-[#FCFAF5]/90 backdrop-blur-[2px] pointer-events-none" />
+
             {/* Close button */}
             <button
               onClick={onClose}
-              className="absolute right-5 top-5 p-2 rounded-xl hover:bg-primary/20 text-text-sub transition-colors cursor-pointer"
+              className="absolute right-5 top-5 p-2 rounded-xl hover:bg-primary/20 text-text-sub transition-colors cursor-pointer z-10"
             >
               <X size={18} />
             </button>
 
             {/* Header */}
-            <div className="text-center mb-6 mt-2">
+            <div className="text-center mb-6 mt-2 relative z-10">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl mx-auto mb-3 shadow-md">
                 🌸
               </div>
@@ -82,7 +85,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-4 p-3 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-2 text-red-700 text-xs font-medium"
+                className="mb-4 p-3 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-2 text-red-700 text-xs font-medium relative z-10"
               >
                 <AlertCircle size={16} className="shrink-0 mt-0.5" />
                 <p className="leading-relaxed">{error}</p>
@@ -90,7 +93,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
             )}
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 relative z-10">
               {mode === 'signup' && (
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub">
@@ -145,7 +148,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
             </form>
 
             {/* Toggle Mode Footer */}
-            <div className="text-center mt-6 pt-4 border-t border-primary/20">
+            <div className="text-center mt-6 pt-4 border-t border-primary/20 relative z-10">
               <p className="font-ui text-xs text-text-sub">
                 {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản rồi?'}
                 <button

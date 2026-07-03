@@ -80,7 +80,7 @@ function ChatBubble({ msg }) {
       className={cn('flex items-start gap-3 mb-4', isAI ? 'justify-start' : 'justify-end')}
     >
       {isAI && (
-        <Avatar name={MIA_NAME} size="sm" className="mt-1 shrink-0" />
+        <Avatar name={MIA_NAME} src="/avatar.png" size="sm" className="mt-1 shrink-0" />
       )}
       <div className={cn('flex flex-col', isAI ? 'items-start' : 'items-end')}>
         {isAI && (
@@ -242,8 +242,8 @@ export default function ChatPage() {
 
         <div className="p-5 border-b border-primary/20">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl">
-              🌸
+            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-card">
+              <img src="/avatar.png" alt="Dora" className="w-full h-full object-cover" />
             </div>
             <div>
               <p className="font-display font-semibold text-text-main">Dora</p>
@@ -321,8 +321,8 @@ export default function ChatPage() {
           >
             <Menu size={20} />
           </button>
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl shrink-0">
-            🌸
+          <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 shadow-card">
+            <img src="/avatar.png" alt="Dora" className="w-full h-full object-cover" />
           </div>
           <div>
             <p className="font-display font-semibold text-text-main">Dora</p>

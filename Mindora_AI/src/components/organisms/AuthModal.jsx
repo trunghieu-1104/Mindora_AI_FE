@@ -56,9 +56,9 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
             {/* Close button */}
             <button
               onClick={onClose}
-              className="absolute right-5 top-5 p-2 rounded-xl hover:bg-primary/10 text-text-sub transition-colors cursor-pointer z-20"
+              className="absolute right-5 top-5 w-9 h-9 flex items-center justify-center rounded-full bg-white/80 border border-primary/10 shadow-sm text-text-sub hover:bg-primary/10 hover:text-text-main hover:rotate-90 transition-all duration-300 cursor-pointer z-20"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
 
             {/* Left Side: Form Column */}
@@ -139,29 +139,35 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
 
                 <Button
                   type="submit"
+                  variant="gradient"
                   loading={loading}
-                  className="w-full justify-center mt-2 py-3 rounded-full text-sm font-semibold cursor-pointer"
+                  className="w-full justify-center mt-2 text-sm cursor-pointer"
                 >
                   {mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
                 </Button>
               </form>
 
-              {/* Switch Mode Footer */}
-              <div className="text-left mt-6 pt-4 border-t border-primary/10">
-                <p className="font-ui text-xs text-text-sub">
-                  {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản rồi?'}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMode(mode === 'login' ? 'signup' : 'login')
-                      setError(null)
-                    }}
-                    className="text-primary font-semibold hover:underline ml-1 cursor-pointer"
-                  >
-                    {mode === 'login' ? 'Đăng ký ngay' : 'Đăng nhập tại đây'}
-                  </button>
-                </p>
+              {/* Divider */}
+              <div className="flex items-center gap-3 mt-6">
+                <span className="flex-1 h-px bg-primary/10" />
+                <span className="font-ui text-[11px] text-text-sub/70 uppercase tracking-wider">hoặc</span>
+                <span className="flex-1 h-px bg-primary/10" />
               </div>
+
+              {/* Switch Mode Footer */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode(mode === 'login' ? 'signup' : 'login')
+                  setError(null)
+                }}
+                className="w-full mt-4 py-3 rounded-2xl border border-primary/20 text-text-sub font-ui text-sm hover:bg-primary/5 hover:border-primary/40 transition-all duration-300 cursor-pointer"
+              >
+                {mode === 'login' ? 'Chưa có tài khoản? ' : 'Đã có tài khoản rồi? '}
+                <span className="text-primary font-semibold">
+                  {mode === 'login' ? 'Đăng ký ngay' : 'Đăng nhập tại đây'}
+                </span>
+              </button>
             </div>
 
 

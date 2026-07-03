@@ -66,9 +66,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
               {/* Header */}
               <div className="mb-6 mt-2">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center text-lg shadow-sm">
-                    🌸
-                  </div>
+                  <img src="/LogoDora.png" alt="Mindora" className="w-8 h-8 object-contain" />
                   <span className="font-ui text-xs font-semibold text-primary uppercase tracking-wider">Mindora</span>
                 </div>
                 <h2 className="font-display text-2xl font-bold text-text-main flex items-center gap-2">
@@ -166,10 +164,6 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
               </div>
             </div>
 
-            {/* Split Divider "or" Circle */}
-            <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white border border-primary/20 items-center justify-center font-ui text-xs font-semibold text-text-sub z-20">
-              hoặc
-            </div>
 
             {/* Right Side: Animated Brand Image Column */}
             <div className="hidden md:flex flex-1 relative bg-secondary-dark overflow-hidden">

@@ -15,7 +15,7 @@ export default function Avatar({ src, name, size = 'md', className, online }) {
   return (
     <div className={cn('relative inline-flex shrink-0', className)}>
       <div className={cn(
-        'rounded-full overflow-hidden bg-primary flex items-center justify-center font-ui font-semibold text-text-main',
+        'rounded-full overflow-hidden bg-primary flex items-center justify-center font-ui font-semibold text-white',
         sizes[size]
       )}>
         {src

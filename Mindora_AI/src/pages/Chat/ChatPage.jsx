@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Music, BookOpen, Trash2, Smile, ExternalLink, Plus, MessageSquare } from 'lucide-react'
+import { Send, Music, BookOpen, Trash2, Smile, ExternalLink, Plus, MessageSquare, Menu, X } from 'lucide-react'
 import Avatar from '../../components/atoms/Avatar'
 import { useAppStore } from '../../store/useAppStore'
 import { QUICK_REPLIES, formatTime, MOODS, cn } from '../../lib/utils'
@@ -77,10 +77,10 @@ function ChatBubble({ msg }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={cn('flex gap-3 mb-4', isAI ? 'justify-start' : 'justify-end')}
+      className={cn('flex items-start gap-3 mb-4', isAI ? 'justify-start' : 'justify-end')}
     >
       {isAI && (
-        <Avatar name={MIA_NAME} size="sm" className="mt-1 shrink-0 bg-primary" />
+        <Avatar name={MIA_NAME} size="sm" className="mt-1 shrink-0" />
       )}
       <div className={cn('flex flex-col', isAI ? 'items-start' : 'items-end')}>
         {isAI && (
@@ -103,9 +103,9 @@ function TypingIndicator() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      className="flex gap-3 mb-4"
+      className="flex items-start gap-3 mb-4"
     >
-      <Avatar name={MIA_NAME} size="sm" className="mt-1 shrink-0 bg-primary" />
+      <Avatar name={MIA_NAME} size="sm" className="mt-1 shrink-0" />
       <div className="chat-bubble-ai flex items-center gap-1.5 py-3 px-4">
         {[0, 1, 2].map(i => (
           <span
@@ -131,6 +131,7 @@ export default function ChatPage() {
   const endRef = useRef(null)
   const inputRef = useRef(null)
   const [loaded, setLoaded] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   // Load conversations + messages khi mount
   useEffect(() => {
@@ -187,10 +188,12 @@ export default function ChatPage() {
   const handleSelectConversation = async (convId) => {
     useAppStore.setState({ currentConversationId: convId })
     await loadMessages(convId)
+    setMobileSidebarOpen(false)
   }
 
   const handleNewConversation = async () => {
     await createConversation('Cuộc trò chuyện mới')
+    setMobileSidebarOpen(false)
   }
 
   // Display initial instruction bubble if message history is empty
@@ -200,13 +203,39 @@ export default function ChatPage() {
   const todayMoodObj = MOODS.find(m => m.value === todayMood)
 
   return (
-    <div className="flex h-[calc(100vh-96px)]">
+    <div className="flex h-[calc(100vh-96px)] relative overflow-hidden">
+      {/* Sidebar Overlay for Mobile */}
+      <AnimatePresence>
+        {mobileSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMobileSidebarOpen(false)}
+            className="fixed inset-0 bg-[#16233D]/40 backdrop-blur-sm z-30 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
-      <aside className="hidden lg:flex flex-col w-72 bg-white border-r border-primary/20 overflow-y-auto">
+      <aside className={cn(
+        "fixed top-0 left-0 bottom-0 z-40 flex flex-col w-72 bg-white border-r border-primary/20 overflow-y-auto transition-transform duration-300 lg:static lg:translate-x-0 lg:transform-none shadow-soft lg:shadow-none",
+        mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        {/* Close button for Mobile Sidebar */}
+        <div className="lg:hidden absolute top-4 right-4 z-10">
+          <button
+            onClick={() => setMobileSidebarOpen(false)}
+            className="p-2 rounded-xl hover:bg-primary/10 text-text-sub transition-colors cursor-pointer"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
         <div className="p-5 border-b border-primary/20">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl">
-              
+              🌸
             </div>
             <div>
               <p className="font-display font-semibold text-text-main">Dora</p>
@@ -271,9 +300,16 @@ export default function ChatPage() {
       </aside>
 
       {/* Chat area */}
-      <div className="flex-1 flex flex-col bg-chat-blobs relative">
+      <div className="flex-1 flex flex-col bg-chat-blobs relative h-full">
         {/* Chat header */}
-        <div className="flex items-center gap-3 px-5 py-4 bg-white border-b border-primary/20 z-10">
+        <div className="flex items-center gap-3 px-5 py-4 bg-white border-b border-primary/20 z-10 shadow-sm">
+          <button
+            onClick={() => setMobileSidebarOpen(true)}
+            className="lg:hidden p-2 rounded-xl hover:bg-primary/10 text-text-main transition-colors cursor-pointer"
+            title="Mở danh sách hội thoại"
+          >
+            <Menu size={20} />
+          </button>
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl shrink-0">
             🌸
           </div>
@@ -296,7 +332,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 bg-bg/70 backdrop-blur-[2.5px]">
+        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 bg-[#FCFAF5]/95 backdrop-blur-[1px]">
           <div className="max-w-2xl mx-auto">
             {displayMessages.map(msg => (
               <ChatBubble key={msg.id} msg={msg} />
@@ -308,74 +344,73 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Quick replies */}
-        <div className="px-4 md:px-8 pb-2">
-          <div className="max-w-2xl mx-auto flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {QUICK_REPLIES.map((qr, i) => (
+        {/* Bottom Floating Control Panel */}
+        <div className="bg-gradient-to-t from-[#FCFAF5] via-[#FCFAF5]/98 to-transparent pt-3 pb-6 px-4 md:px-8 border-t border-primary/5 z-10">
+          <div className="max-w-2xl mx-auto flex flex-col gap-3">
+            {/* Quick replies */}
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide select-none">
+              {QUICK_REPLIES.map((qr, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSend(qr.value)}
+                  className="mood-chip bg-white border border-primary/25 text-text-sub hover:bg-primary hover:text-white hover:border-primary whitespace-nowrap cursor-pointer text-xs py-1.5 px-4 shadow-sm active:scale-95 transition-all duration-200"
+                >
+                  {qr.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Action shortcuts */}
+            <div className="flex gap-2">
               <button
-                key={i}
-                onClick={() => handleSend(qr.value)}
-                className="mood-chip bg-white border border-primary/40 text-text-sub hover:bg-primary/20 hover:border-primary hover:text-text-main whitespace-nowrap cursor-pointer"
+                onClick={() => handleSend('Gợi ý cho mình một bài nhạc phù hợp với tâm trạng nhé 🎵')}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent/15 hover:bg-accent/30 text-text-main font-ui text-xs hover:text-primary-dark transition-all duration-200 cursor-pointer shadow-sm active:scale-95"
               >
-                {qr.label}
+                <Music size={13} className="text-primary" /> Gợi ý nhạc
               </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Action shortcuts */}
-        <div className="px-4 md:px-8 pb-2">
-          <div className="max-w-2xl mx-auto flex gap-2">
-            <button
-              onClick={() => handleSend('Gợi ý cho mình một bài nhạc phù hợp với tâm trạng nhé 🎵')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/60 text-text-main font-ui text-xs hover:bg-accent transition-colors duration-200 cursor-pointer"
-            >
-              <Music size={13} /> Gợi ý nhạc
-            </button>
-            <button
-              onClick={() => handleSend('Mình muốn ghi nhật ký về hôm nay 📝')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/30 text-text-main font-ui text-xs hover:bg-secondary/50 transition-colors duration-200 cursor-pointer"
-            >
-              <BookOpen size={13} /> Ghi nhật ký
-            </button>
-          </div>
-        </div>
-
-        {/* Input */}
-        <div className="px-4 md:px-8 pb-4 pt-2 bg-white border-t border-primary/20">
-          <div className="max-w-2xl mx-auto flex gap-3 items-end">
-            <div className="flex-1 relative">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKey}
-                placeholder="Nhập tin nhắn..."
-                rows={1}
-                className="input-field resize-none pr-10 min-h-[48px] max-h-32"
-                style={{ height: 'auto' }}
-                onInput={(e) => {
-                  e.target.style.height = 'auto'
-                  e.target.style.height = Math.min(e.target.scrollHeight, 128) + 'px'
-                }}
-              />
-              <button className="absolute right-3 bottom-3 text-text-sub hover:text-text-main transition-colors">
-                <Smile size={18} />
+              <button
+                onClick={() => handleSend('Mình muốn ghi nhật ký về hôm nay 📝')}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary/15 hover:bg-secondary/35 text-text-main font-ui text-xs hover:text-[#9A7D18] transition-all duration-200 cursor-pointer shadow-sm active:scale-95"
+              >
+                <BookOpen size={13} className="text-[#C9A227]" /> Ghi nhật ký
               </button>
             </div>
-            <motion.button
-              whileTap={{ scale: 0.92 }}
-              onClick={() => handleSend()}
-              disabled={!input.trim() || isTyping}
-              className={cn(
-                'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 cursor-pointer',
-                input.trim() && !isTyping
-                  ? 'bg-primary text-text-main shadow-card hover:bg-primary-dark'
-                  : 'bg-primary/30 text-text-sub cursor-not-allowed'
-              )}
-            >
-              <Send size={18} />
-            </motion.button>
+
+            {/* Input box card */}
+            <div className="flex gap-3 items-end bg-white border border-primary/20 rounded-[2rem] p-2.5 shadow-soft">
+              <div className="flex-1 relative">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKey}
+                  placeholder="Nhập tin nhắn với Dora..."
+                  rows={1}
+                  className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none py-3.5 pl-4 pr-10 resize-none min-h-[44px] max-h-32 font-body text-text-main placeholder-text-sub/50 text-sm leading-relaxed"
+                  style={{ height: 'auto' }}
+                  onInput={(e) => {
+                    e.target.style.height = 'auto'
+                    e.target.style.height = Math.min(e.target.scrollHeight, 128) + 'px'
+                  }}
+                />
+                <button className="absolute right-3 top-1/2 -translate-y-1/2 text-text-sub hover:text-text-main transition-colors cursor-pointer">
+                  <Smile size={18} />
+                </button>
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onClick={() => handleSend()}
+                disabled={!input.trim() || isTyping}
+                className={cn(
+                  'w-11 h-11 rounded-[1.25rem] flex items-center justify-center transition-all duration-200 shrink-0 cursor-pointer',
+                  input.trim() && !isTyping
+                    ? 'bg-primary text-white shadow-card hover:bg-primary-dark'
+                    : 'bg-primary/20 text-text-sub/30 cursor-not-allowed'
+                )}
+              >
+                <Send size={16} />
+              </motion.button>
+            </div>
           </div>
         </div>
       </div>

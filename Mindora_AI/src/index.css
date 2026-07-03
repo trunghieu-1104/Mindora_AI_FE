@@ -127,7 +127,7 @@
 
   .chat-bubble-user {
     @apply bg-primary rounded-3xl rounded-tr-sm shadow-bubble px-4 py-3 max-w-[80%]
-           text-text-main font-body text-sm leading-relaxed animate-fade-up;
+           text-white font-body text-sm leading-relaxed animate-fade-up;
   }
 
   .input-field {

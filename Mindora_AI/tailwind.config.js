@@ -4,19 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary:   '#2563EB', // Blue primary
-        secondary: '#EAB308', // Golden yellow secondary
-        accent:    '#60A5FA', // Bright sky-blue accent
-        bg:        '#F5F9FF', // Cool light-blue background
+        primary:   '#1E4E79', // Elegant deep navy blue (logo/mascot blue)
+        secondary: '#C9A227', // Warm brass/gold (logo brain + bell accent)
+        accent:    '#6FA3D0', // Soft sky-blue accent
+        bg:        '#FAF6EC', // Warm ivory background (logo backdrop tone)
         'text-main': '#16233D', // Deep navy main text
-        'text-sub':  '#5B6B85', // Muted slate-blue subtext
+        'text-sub':  '#6B7686', // Muted warm slate subtext
         warning:   '#F59E0B',
         danger:    '#DC2626',
-        'primary-light':   '#DBEAFE', // Light blue
-        'primary-dark':    '#1E3A8A', // Dark navy blue
-        'secondary-light': '#FDE68A', // Soft light gold
-        'secondary-dark':  '#142A4D', // Deep navy (dark surfaces)
-        'soft-green':      '#DCEBFF', // Pastel blue (kept for compatibility)
+        'primary-light':   '#D6E6F2', // Soft powder blue
+        'primary-dark':    '#123152', // Darker navy blue
+        'secondary-light': '#F0E2B0', // Soft pale gold
+        'secondary-dark':  '#16283F', // Deep navy (dark surfaces)
+        'soft-green':      '#D6E6F2', // Pastel blue (kept for compatibility)
       },
       fontFamily: {
         display: ['"Playfair Display"', 'serif'],

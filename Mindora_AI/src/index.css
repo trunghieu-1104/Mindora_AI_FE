@@ -4,12 +4,12 @@
 
 @layer base {
   :root {
-    --color-primary:        #2563EB;
-    --color-secondary:      #EAB308;
-    --color-accent:         #60A5FA;
-    --color-bg:             #F5F9FF;
+    --color-primary:        #1E4E79;
+    --color-secondary:      #C9A227;
+    --color-accent:         #6FA3D0;
+    --color-bg:             #FAF6EC;
     --color-text-main:      #16233D;
-    --color-text-sub:       #5B6B85;
+    --color-text-sub:       #6B7686;
     --color-warning:        #F59E0B;
     --color-danger:         #DC2626;
   }
@@ -24,7 +24,7 @@
 
   body {
     margin: 0;
-    background-color: #F5F9FF;
+    background-color: #FAF6EC;
     color: #16233D;
     font-family: 'Nunito', sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -87,7 +87,7 @@
   /* Notebook Lined Paper style */
   .notebook-paper {
     background: #fff;
-    background-image: linear-gradient(#dbe6f2 1px, transparent 1px);
+    background-image: linear-gradient(#efe7d3 1px, transparent 1px);
     background-size: 100% 2rem;
     line-height: 2rem;
     padding: 0.5rem 1.5rem;

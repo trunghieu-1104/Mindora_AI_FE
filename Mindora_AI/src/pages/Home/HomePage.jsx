@@ -464,8 +464,8 @@ export default function HomePage() {
                   <p className="font-ui text-white/55 text-xs mb-3">Tâm trạng hôm nay</p>
                   <div className="flex gap-2 justify-around">
                     {[
-                      { label: 'Vui', color: '#EAB308' },
-                      { label: 'Bình', color: '#5B6B85' },
+                      { label: 'Vui', color: '#C9A227' },
+                      { label: 'Bình', color: '#6B7686' },
                       { label: 'Lo', color: '#6B7280' },
                       { label: 'Buồn', color: '#4B5563' },
                       { label: 'Mệt', color: '#374151' },

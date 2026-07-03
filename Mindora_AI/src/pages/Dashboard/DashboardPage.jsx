@@ -130,7 +130,7 @@ export default function DashboardPage() {
 
   if (loading && user) {
     return (
-      <div className="min-h-screen bg-[#FDFBF7] py-10 px-4 md:px-8 flex items-center justify-center">
+      <div className="min-h-screen bg-bg py-10 px-4 md:px-8 flex items-center justify-center">
         <div className="text-center">
           <p className="text-3xl mb-2">⏳</p>
           <p className="font-body text-sm text-text-sub">Đang tải dữ liệu phân tích...</p>
@@ -140,22 +140,22 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] py-10 px-4 md:px-8">
+    <div className="min-h-screen bg-bg py-10 px-4 md:px-8">
       {/* Outer elegant picture frame wrapper mimicking Insight.jpg */}
-      <div className="max-w-6xl mx-auto border-[16px] border-[#D6C4B0]/30 rounded-[2.5rem] bg-[#F9F6F0] shadow-soft p-6 md:p-8">
+      <div className="max-w-6xl mx-auto border-[16px] border-[#B9CFE8]/30 rounded-[2.5rem] bg-[#F2F7FD] shadow-soft p-6 md:p-8">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* ─── LEFT SIDEBAR PANEL (4 cols) ────────────────────── */}
           <aside className="lg:col-span-4 flex flex-col gap-6">
-            <div className="bg-[#FAF8F5] border border-[#EBE6DD] rounded-3xl p-6 shadow-sm">
+            <div className="bg-[#F3F8FE] border border-[#DCE7F5] rounded-3xl p-6 shadow-sm">
               <h2 className="font-display text-xl text-text-main font-semibold mb-6 border-b border-primary/10 pb-3">
                 Chỉ số tâm lý
               </h2>
 
               <div className="flex flex-col gap-5">
                 {/* Metric 1 */}
-                <div className="bg-white/80 border border-[#F2ECE2] rounded-2xl p-4 shadow-inner">
+                <div className="bg-white/80 border border-[#E6EFFB] rounded-2xl p-4 shadow-inner">
                   <span className="font-ui text-xs text-text-sub uppercase tracking-wider block mb-1">Điểm TB tuần này</span>
                   <div className="flex items-baseline gap-2">
                     <span className="font-display text-4xl text-primary font-bold">{formattedAvg}</span>
@@ -167,7 +167,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Metric 2 */}
-                <div className="bg-white/80 border border-[#F2ECE2] rounded-2xl p-4 shadow-inner">
+                <div className="bg-white/80 border border-[#E6EFFB] rounded-2xl p-4 shadow-inner">
                   <span className="font-ui text-xs text-text-sub uppercase tracking-wider block mb-1">Tổng nhật ký</span>
                   <div className="flex items-baseline gap-1">
                     <span className="font-display text-3xl text-secondary font-bold">{totalEntries}</span>
@@ -177,7 +177,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Metric 3 */}
-                <div className="bg-white/80 border border-[#F2ECE2] rounded-2xl p-4 shadow-inner">
+                <div className="bg-white/80 border border-[#E6EFFB] rounded-2xl p-4 shadow-inner">
                   <span className="font-ui text-xs text-text-sub uppercase tracking-wider block mb-1">Chỉ số check-in</span>
                   <div className="flex items-baseline gap-1">
                     <span className="font-display text-3xl text-primary font-bold">{last7DaysCount}</span>
@@ -187,7 +187,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Metric 4 */}
-                <div className="bg-white/80 border border-[#F2ECE2] rounded-2xl p-4 shadow-inner">
+                <div className="bg-white/80 border border-[#E6EFFB] rounded-2xl p-4 shadow-inner">
                   <span className="font-ui text-xs text-text-sub uppercase tracking-wider block mb-1">Mood logs tuần này</span>
                   <div className="flex items-baseline gap-1">
                     <span className="font-display text-3xl text-text-main font-bold">{totalMoodEntries}</span>
@@ -206,7 +206,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-3">
                 <button 
                   onClick={() => window.history.back()}
-                  className="p-2.5 rounded-full bg-white hover:bg-primary-light border border-[#EBE6DD] text-text-main hover:text-primary transition-colors cursor-pointer"
+                  className="p-2.5 rounded-full bg-white hover:bg-primary-light border border-[#DCE7F5] text-text-main hover:text-primary transition-colors cursor-pointer"
                 >
                   <ArrowLeft size={16} />
                 </button>
@@ -218,16 +218,16 @@ export default function DashboardPage() {
             </div>
 
             {/* STACKED AREA CHART WAVES */}
-            <div className="bg-white border border-[#EBE6DD] rounded-3xl p-6 shadow-sm">
+            <div className="bg-white border border-[#DCE7F5] rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="font-display text-lg text-text-main font-medium">Xu Hướng Cảm Xúc</h3>
                   <p className="font-ui text-[11px] text-text-sub">Phân rã các tầng năng lượng cảm xúc theo 7 ngày qua</p>
                 </div>
                 <div className="flex gap-4 text-xs font-ui">
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#C97B3A]" /> Tích cực</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#E8A06A]" /> Bình yên</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#F7D6C0]" /> Nhẹ nhõm</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" /> Tích cực</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#EAB308]" /> Bình yên</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#FDE68A]" /> Nhẹ nhõm</span>
                 </div>
               </div>
 
@@ -237,44 +237,44 @@ export default function DashboardPage() {
                   <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                     <defs>
                       <linearGradient id="areaTerracotta" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#C97B3A" stopOpacity={0.85}/>
-                        <stop offset="95%" stopColor="#C97B3A" stopOpacity={0.4}/>
+                        <stop offset="5%" stopColor="#2563EB" stopOpacity={0.85}/>
+                        <stop offset="95%" stopColor="#2563EB" stopOpacity={0.4}/>
                       </linearGradient>
                       <linearGradient id="areaPeach" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#E8A06A" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#E8A06A" stopOpacity={0.3}/>
+                        <stop offset="5%" stopColor="#EAB308" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#EAB308" stopOpacity={0.3}/>
                       </linearGradient>
                       <linearGradient id="areaCream" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#F7D6C0" stopOpacity={0.75}/>
-                        <stop offset="95%" stopColor="#F7D6C0" stopOpacity={0.25}/>
+                        <stop offset="5%" stopColor="#FDE68A" stopOpacity={0.75}/>
+                        <stop offset="95%" stopColor="#FDE68A" stopOpacity={0.25}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={false} stroke="#EBE6DD" />
-                    <XAxis 
-                      dataKey="day" 
-                      tick={{ fontFamily: 'DM Sans', fontSize: 11, fill: '#8C736C' }} 
-                      axisLine={false} 
-                      tickLine={false} 
+                    <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={false} stroke="#DCE7F5" />
+                    <XAxis
+                      dataKey="day"
+                      tick={{ fontFamily: 'DM Sans', fontSize: 11, fill: '#5B6B85' }}
+                      axisLine={false}
+                      tickLine={false}
                     />
-                    <YAxis 
-                      domain={[0, 7]} 
-                      tick={{ fontFamily: 'DM Sans', fontSize: 11, fill: '#8C736C' }} 
-                      axisLine={false} 
-                      tickLine={false} 
+                    <YAxis
+                      domain={[0, 7]}
+                      tick={{ fontFamily: 'DM Sans', fontSize: 11, fill: '#5B6B85' }}
+                      axisLine={false}
+                      tickLine={false}
                     />
                     <Tooltip content={<CustomTooltip />} />
-                    
+
                     <Area type="monotone" dataKey="terracotta" stackId="1" stroke="none" fill="url(#areaTerracotta)" />
                     <Area type="monotone" dataKey="peach" stackId="1" stroke="none" fill="url(#areaPeach)" />
                     <Area type="monotone" dataKey="cream" stackId="1" stroke="none" fill="url(#areaCream)" />
 
-                    <Line 
-                      type="monotone" 
-                      dataKey="score" 
-                      stroke="#A65E27" 
-                      strokeWidth={3} 
-                      dot={{ fill: '#C97B3A', stroke: '#fff', strokeWidth: 1.5, r: 4 }}
-                      activeDot={{ r: 6, stroke: '#A65E27', strokeWidth: 2 }}
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      stroke="#1E3A8A"
+                      strokeWidth={3}
+                      dot={{ fill: '#2563EB', stroke: '#fff', strokeWidth: 1.5, r: 4 }}
+                      activeDot={{ r: 6, stroke: '#1E3A8A', strokeWidth: 2 }}
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
@@ -286,7 +286,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
               {/* Card 1: Period Checkin */}
-              <div className="bg-white border border-[#EBE6DD] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+              <div className="bg-white border border-[#DCE7F5] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
                   <h4 className="font-display text-base text-text-main font-semibold mb-1">Period Checkin</h4>
                   <p className="font-body text-xs text-text-sub leading-relaxed">Tần suất và mật độ ghi nhật ký cảm xúc cá nhân của bạn trong tuần.</p>
@@ -306,7 +306,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Card 2: Recent Mood Statistics */}
-              <div className="bg-white border border-[#EBE6DD] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+              <div className="bg-white border border-[#DCE7F5] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
                   <h4 className="font-display text-base text-text-main font-semibold mb-1">Senti Anterior</h4>
                   <p className="font-body text-xs text-text-sub leading-relaxed">Mức cân bằng cảm xúc dựa trên phản hồi của cuộc trò chuyện và nhật ký gần đây.</p>
@@ -334,7 +334,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Card 3: Recent Journals Activity list */}
-            <div className="bg-white border border-[#EBE6DD] rounded-3xl p-6 shadow-sm">
+            <div className="bg-white border border-[#DCE7F5] rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4 border-b border-primary/5 pb-2">
                 <h4 className="font-display text-base text-text-main font-semibold">Lịch sử nhật ký hoạt động</h4>
                 <span className="font-ui text-xs text-text-sub">Gần đây</span>
@@ -347,7 +347,7 @@ export default function DashboardPage() {
                     return (
                       <div 
                         key={j.id} 
-                        className="flex items-center justify-between gap-4 p-3 bg-bg/50 rounded-2xl border border-[#F2ECE2] hover:bg-bg transition-colors"
+                        className="flex items-center justify-between gap-4 p-3 bg-bg/50 rounded-2xl border border-[#E6EFFB] hover:bg-bg transition-colors"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <span className="text-xl shrink-0">{moodObj?.emoji || '😌'}</span>

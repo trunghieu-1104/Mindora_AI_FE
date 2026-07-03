@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    --color-primary:        #C97B3A;
-    --color-secondary:      #B07D58;
-    --color-accent:         #E8A06A;
-    --color-bg:             #FDFBF7;
-    --color-text-main:      #2E1C16;
-    --color-text-sub:       #8C736C;
-    --color-warning:        #E8961A;
-    --color-danger:         #D94F4F;
+    --color-primary:        #2563EB;
+    --color-secondary:      #EAB308;
+    --color-accent:         #60A5FA;
+    --color-bg:             #F5F9FF;
+    --color-text-main:      #16233D;
+    --color-text-sub:       #5B6B85;
+    --color-warning:        #F59E0B;
+    --color-danger:         #DC2626;
   }
 
   * {
@@ -24,8 +24,8 @@
 
   body {
     margin: 0;
-    background-color: #FDFBF7;
-    color: #2E1C16;
+    background-color: #F5F9FF;
+    color: #16233D;
     font-family: 'Nunito', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -37,7 +37,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif;
-    color: #2E1C16;
+    color: #16233D;
   }
 
   /* Image Background Utilities */
@@ -87,7 +87,7 @@
   /* Notebook Lined Paper style */
   .notebook-paper {
     background: #fff;
-    background-image: linear-gradient(#e1dcd6 1px, transparent 1px);
+    background-image: linear-gradient(#dbe6f2 1px, transparent 1px);
     background-size: 100% 2rem;
     line-height: 2rem;
     padding: 0.5rem 1.5rem;

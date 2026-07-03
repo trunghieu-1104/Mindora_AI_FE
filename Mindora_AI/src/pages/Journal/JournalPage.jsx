@@ -16,12 +16,12 @@ function JournalCard({ entry, onEdit, onDelete }) {
       layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="card border border-[#EBE6DD] bg-white hover:shadow-soft transition-shadow duration-300 relative overflow-hidden"
+      className="card border border-[#DCE7F5] bg-white hover:shadow-soft transition-shadow duration-300 relative overflow-hidden"
     >
       {/* Decorative vertical colored mood border */}
       <div 
         className="absolute top-0 left-0 bottom-0 w-1.5" 
-        style={{ backgroundColor: mood?.color || '#C97B3A' }} 
+        style={{ backgroundColor: mood?.color || '#2563EB' }}
       />
 
       <div className="pl-3">
@@ -71,7 +71,7 @@ function JournalCard({ entry, onEdit, onDelete }) {
 
         {entry.tags?.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
-            {entry.tags.map(t => <Tag key={t} className="bg-bg text-text-sub border border-[#F2ECE2] text-[10px] py-0.5 px-2.5">{t}</Tag>)}
+            {entry.tags.map(t => <Tag key={t} className="bg-bg text-text-sub border border-[#E6EFFB] text-[10px] py-0.5 px-2.5">{t}</Tag>)}
           </div>
         )}
       </div>
@@ -119,7 +119,7 @@ function WriteModal({ onClose, editEntry }) {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-bg border border-[#EBE6DD] rounded-4xl shadow-soft w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8 relative"
+        className="bg-bg border border-[#DCE7F5] rounded-4xl shadow-soft w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8 relative"
       >
         {/* Sunbeam ambient gradient representing journal.jpg light */}
         <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-accent/10 to-transparent pointer-events-none rounded-tr-4xl" />
@@ -148,14 +148,14 @@ function WriteModal({ onClose, editEntry }) {
         {/* Lined Notebook Paper Editor mimicking journal.jpg */}
         <div className="mb-5">
           <label className="font-ui text-xs text-text-sub uppercase tracking-wider block mb-2">Lời tự sự của bạn</label>
-          <div className="relative rounded-2xl overflow-hidden border border-[#EBE6DD] bg-white shadow-inner">
+          <div className="relative rounded-2xl overflow-hidden border border-[#DCE7F5] bg-white shadow-inner">
             {/* Lined notebook decoration inside text container */}
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Kể về ngày hôm nay của bạn... Điều gì đã xảy ra? Bạn đang nghĩ gì? Dora luôn ở đây lắng nghe."
               rows={7}
-              className="w-full bg-[#FAF8F5] notebook-paper border-0 resize-none font-body text-[#3E2723] text-sm leading-8 focus:outline-none focus:ring-0 p-5 placeholder-text-sub/50"
+              className="w-full bg-[#F3F8FE] notebook-paper border-0 resize-none font-body text-[#16233D] text-sm leading-8 focus:outline-none focus:ring-0 p-5 placeholder-text-sub/50"
             />
             {/* Decorative golden pen accent mimicking the wooden pen in journal.jpg */}
             <div className="absolute bottom-3 right-4 font-ui text-[10px] text-text-sub/40 pointer-events-none flex items-center gap-1.5">
@@ -176,7 +176,7 @@ function WriteModal({ onClose, editEntry }) {
             value={tags}
             onChange={(e) => setTags(e.target.value)}
             placeholder="ví dụ: công_việc, bạn_bè, sức_khỏe..."
-            className="w-full bg-white border border-[#EBE6DD] rounded-xl px-4 py-2.5 font-body text-sm text-text-main placeholder-text-sub/40 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+            className="w-full bg-white border border-[#DCE7F5] rounded-xl px-4 py-2.5 font-body text-sm text-text-main placeholder-text-sub/40 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
           />
         </div>
 
@@ -263,7 +263,7 @@ export default function JournalPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card bg-gradient-to-r from-primary/10 via-accent/5 to-secondary/15 border border-[#EBE6DD] mb-8 cursor-pointer relative overflow-hidden"
+          className="card bg-gradient-to-r from-primary/10 via-accent/5 to-secondary/15 border border-[#DCE7F5] mb-8 cursor-pointer relative overflow-hidden"
           onClick={() => { setEditEntry(null); setShowModal(true) }}
         >
           {/* Subtle notebook pen design details on check-in banner */}
@@ -307,7 +307,7 @@ export default function JournalPage() {
               />
             ))
           ) : (
-            <div className="text-center py-14 card border border-[#EBE6DD] bg-white">
+            <div className="text-center py-14 card border border-[#DCE7F5] bg-white">
               <p className="text-4xl mb-3">....</p>
               <p className="font-display text-lg text-text-main font-semibold">Chưa có trang nhật ký nào</p>
               <p className="font-body text-xs text-text-sub mt-1.5 mb-5">Hãy bắt đầu lưu giữ cảm xúc của bạn từ hôm nay!</p>

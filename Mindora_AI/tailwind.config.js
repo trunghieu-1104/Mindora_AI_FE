@@ -4,19 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary:   '#C97B3A', // Terracotta primary
-        secondary: '#B07D58', // Sand/Clay secondary
-        accent:    '#E8A06A', // Peach accent
-        bg:        '#FDFBF7', // Warm cream background
-        'text-main': '#2E1C16', // Dark brown main text
-        'text-sub':  '#8C736C', // Muted brown subtext
-        warning:   '#E8961A',
-        danger:    '#D94F4F',
-        'primary-light':   '#F7D6C0', // Light peach
-        'primary-dark':    '#A65E27', // Dark terracotta
-        'secondary-light': '#E6B58F', // Sand light
-        'secondary-dark':  '#1A0F0D', // Very dark brown
-        'soft-green':      '#E2F0D9', // Pastel mint/green
+        primary:   '#2563EB', // Blue primary
+        secondary: '#EAB308', // Golden yellow secondary
+        accent:    '#60A5FA', // Bright sky-blue accent
+        bg:        '#F5F9FF', // Cool light-blue background
+        'text-main': '#16233D', // Deep navy main text
+        'text-sub':  '#5B6B85', // Muted slate-blue subtext
+        warning:   '#F59E0B',
+        danger:    '#DC2626',
+        'primary-light':   '#DBEAFE', // Light blue
+        'primary-dark':    '#1E3A8A', // Dark navy blue
+        'secondary-light': '#FDE68A', // Soft light gold
+        'secondary-dark':  '#142A4D', // Deep navy (dark surfaces)
+        'soft-green':      '#DCEBFF', // Pastel blue (kept for compatibility)
       },
       fontFamily: {
         display: ['"Playfair Display"', 'serif'],

@@ -38,15 +38,15 @@ export default function CircularMoodPicker({ value, onChange }) {
         />
 
         {/* Decorative elements */}
-        {/* Small orange circle dot */}
-        <circle cx="100" cy="30" r="3" fill="#E8A06A" className="opacity-80" />
+        {/* Small golden circle dot */}
+        <circle cx="100" cy="30" r="3" fill="#EAB308" className="opacity-80" />
 
         {/* Gradient Definitions */}
         <defs>
           <linearGradient id="track-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#C97B3A" stopOpacity="0.4" />
-            <stop offset="50%" stopColor="#E8A06A" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#B07D58" stopOpacity="0.3" />
+            <stop offset="0%" stopColor="#2563EB" stopOpacity="0.4" />
+            <stop offset="50%" stopColor="#60A5FA" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#EAB308" stopOpacity="0.3" />
           </linearGradient>
         </defs>
       </svg>
@@ -102,8 +102,8 @@ export default function CircularMoodPicker({ value, onChange }) {
               borderColor: isSelected ? 'var(--color-primary)' : 'transparent',
               transform: isSelected ? 'scale(1.15)' : 'scale(1)',
               boxShadow: isSelected
-                ? '0 10px 25px -5px rgba(201, 123, 58, 0.4), inset 0 -4px 6px rgba(0, 0, 0, 0.05)'
-                : '0 4px 12px rgba(46, 28, 22, 0.08), inset 0 -3px 4px rgba(0, 0, 0, 0.04)',
+                ? '0 10px 25px -5px rgba(37, 99, 235, 0.4), inset 0 -4px 6px rgba(0, 0, 0, 0.05)'
+                : '0 4px 12px rgba(22, 35, 61, 0.08), inset 0 -3px 4px rgba(0, 0, 0, 0.04)',
             }}
           >
             {/* 3D Glassy reflection sheen */}

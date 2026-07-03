@@ -343,7 +343,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 z-10 bg-transparent">
+        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 z-10 bg-transparent chat-messages-container">
           <div className="max-w-2xl mx-auto">
             {displayMessages.map(msg => (
               <ChatBubble key={msg.id} msg={msg} />
@@ -356,7 +356,7 @@ export default function ChatPage() {
         </div>
 
         {/* Bottom Floating Control Panel */}
-        <div className="bg-gradient-to-t from-[#FCFAF5] via-[#FCFAF5]/98 to-transparent pt-3 pb-6 px-4 md:px-8 z-10">
+        <div className="bg-transparent pt-3 pb-6 px-4 md:px-8 z-10">
           <div className="max-w-2xl mx-auto flex flex-col gap-3">
             {/* Quick replies */}
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide select-none">

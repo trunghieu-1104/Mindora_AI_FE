@@ -149,4 +149,19 @@
   .section-sub {
     @apply font-body text-text-sub text-base md:text-lg leading-relaxed;
   }
+
+  /* Custom scrollbar for chat messages */
+  .chat-messages-container::-webkit-scrollbar {
+    width: 6px;
+  }
+  .chat-messages-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .chat-messages-container::-webkit-scrollbar-thumb {
+    background: rgba(30, 78, 121, 0.25);
+    border-radius: 99px;
+  }
+  .chat-messages-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(30, 78, 121, 0.45);
+  }
 }

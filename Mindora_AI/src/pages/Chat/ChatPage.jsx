@@ -133,6 +133,14 @@ export default function ChatPage() {
   const [loaded, setLoaded] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
+  // Disable body scroll when ChatPage is active to prevent double scrollbars
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [])
+
   // Load conversations + messages khi mount
   useEffect(() => {
     if (!user) return
@@ -203,7 +211,7 @@ export default function ChatPage() {
   const todayMoodObj = MOODS.find(m => m.value === todayMood)
 
   return (
-    <div className="flex h-[calc(100vh-96px)] relative overflow-hidden">
+    <div className="flex h-[calc(100vh-97px)] relative overflow-hidden">
       {/* Sidebar Overlay for Mobile */}
       <AnimatePresence>
         {mobileSidebarOpen && (
@@ -301,6 +309,9 @@ export default function ChatPage() {
 
       {/* Chat area */}
       <div className="flex-1 flex flex-col bg-chat-blobs relative h-full">
+        {/* Unified Light overlay for consistent background blending */}
+        <div className="absolute inset-0 bg-[#FCFAF5]/50 backdrop-blur-[1px] pointer-events-none" />
+
         {/* Chat header */}
         <div className="flex items-center gap-3 px-5 py-4 bg-white border-b border-primary/20 z-10 shadow-sm">
           <button
@@ -332,7 +343,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 bg-[#FCFAF5]/50 backdrop-blur-[1px]">
+        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 z-10 bg-transparent">
           <div className="max-w-2xl mx-auto">
             {displayMessages.map(msg => (
               <ChatBubble key={msg.id} msg={msg} />
@@ -345,7 +356,7 @@ export default function ChatPage() {
         </div>
 
         {/* Bottom Floating Control Panel */}
-        <div className="bg-gradient-to-t from-[#FCFAF5] via-[#FCFAF5]/98 to-transparent pt-3 pb-6 px-4 md:px-8 border-t border-primary/5 z-10">
+        <div className="bg-gradient-to-t from-[#FCFAF5] via-[#FCFAF5]/98 to-transparent pt-3 pb-6 px-4 md:px-8 z-10">
           <div className="max-w-2xl mx-auto flex flex-col gap-3">
             {/* Quick replies */}
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide select-none">

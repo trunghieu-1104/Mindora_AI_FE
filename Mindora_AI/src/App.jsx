@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { HashRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/organisms/Navbar'
 import SpotifyPlayer from './components/organisms/SpotifyPlayer'
 import HomePage from './pages/Home/HomePage'
@@ -7,6 +7,7 @@ import ChatPage from './pages/Chat/ChatPage'
 import JournalPage from './pages/Journal/JournalPage'
 import ExplorePage from './pages/Explore/ExplorePage'
 import DashboardPage from './pages/Dashboard/DashboardPage'
+import PrivateRoute from './components/PrivateRoute'
 import { useAppStore } from './store/useAppStore'
 
 export default function App() {
@@ -17,20 +18,20 @@ export default function App() {
   }, [initSession])
 
   return (
-    <HashRouter>
+    <BrowserRouter>
       <div className="min-h-screen bg-bg flex flex-col">
         <Navbar />
         <main className="flex-1">
           <Routes>
             <Route path="/"          element={<HomePage />} />
             <Route path="/chat"      element={<ChatPage />} />
-            <Route path="/journal"   element={<JournalPage />} />
-            <Route path="/explore"   element={<ExplorePage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/journal"   element={<PrivateRoute><JournalPage /></PrivateRoute>} />
+            <Route path="/explore"   element={<PrivateRoute><ExplorePage /></PrivateRoute>} />
+            <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
           </Routes>
         </main>
         <SpotifyPlayer />
       </div>
-    </HashRouter>
+    </BrowserRouter>
   )
 }

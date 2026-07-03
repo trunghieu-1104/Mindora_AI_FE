@@ -15,7 +15,7 @@ class ErrorBoundary extends Component {
     if (this.state.error) {
       return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#F5F0E6', padding: '2rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}></div>
           <h2 style={{ fontFamily: 'serif', color: '#1B2A3A', marginBottom: '0.5rem' }}>Đã xảy ra lỗi</h2>
           <p style={{ color: '#4A6380', marginBottom: '1.5rem', maxWidth: '400px' }}>
             {this.state.error.message || 'Lỗi không xác định. Vui lòng kiểm tra file .env và thử lại.'}

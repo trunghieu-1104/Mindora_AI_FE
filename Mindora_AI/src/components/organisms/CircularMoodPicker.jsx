@@ -65,7 +65,7 @@ export default function CircularMoodPicker({ value, onChange }) {
           top: 'calc(50% - 10px)',
         }}
       >
-        ✨
+        
       </motion.div>
 
       {/* Central selected mood label */}

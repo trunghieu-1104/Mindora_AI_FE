@@ -1,14 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Music, BookOpen, Trash2, Smile, ExternalLink } from 'lucide-react'
+import { Send, Music, BookOpen, Trash2, Smile, ExternalLink, Plus, MessageSquare } from 'lucide-react'
 import Avatar from '../../components/atoms/Avatar'
-import Button from '../../components/atoms/Button'
 import { useAppStore } from '../../store/useAppStore'
-import { QUICK_REPLIES, formatTime, MOODS } from '../../lib/utils'
-import { askDora } from '../../lib/gemini'
-import { cn } from '../../lib/utils'
+import { QUICK_REPLIES, formatTime, MOODS, cn } from '../../lib/utils'
 
-const MIA_AVATAR = null
 const MIA_NAME = 'Dora'
 
 const INITIAL_MESSAGE = {
@@ -49,7 +45,7 @@ function ChatBubble({ msg }) {
                 isAI ? "text-secondary hover:text-secondary-dark" : "text-white hover:text-white/80"
               )}
             >
-              <span>{isSpotify ? '🎵 Nghe trên Spotify' : '🔗 Mở liên kết'}</span>
+              <span>{isSpotify ? 'Nghe trên Spotify' : 'Mở liên kết'}</span>
               <ExternalLink size={12} />
             </a>
             {isSpotify && (
@@ -59,14 +55,14 @@ function ChatBubble({ msg }) {
                     title: 'Nhạc đề xuất từ Dora',
                     artist: 'Chọn lọc từ cuộc trò chuyện',
                     spotifyUrl: part,
-                    emoji: '🌸'
+                    
                   }
                   useAppStore.getState().setPlayingItem(fakeItem)
                   useAppStore.getState().setIsMinimized(false)
                 }}
                 className="px-3 py-1 bg-primary text-text-main rounded-full font-ui text-[10px] font-bold hover:bg-primary-dark cursor-pointer transition-colors shadow-sm w-fit active:scale-95"
               >
-                Phát ngay ⚡
+                Phát ngay
               </button>
             )}
           </span>
@@ -124,60 +120,54 @@ function TypingIndicator() {
 }
 
 export default function ChatPage() {
-  const { messages, addMessage, clearMessages, journals, user } = useAppStore()
+  const {
+    messages, sendMessage, clearMessages, loadMessages,
+    conversations, loadConversations, createConversation,
+    currentConversationId, user,
+  } = useAppStore()
+
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const endRef = useRef(null)
   const inputRef = useRef(null)
+  const [loaded, setLoaded] = useState(false)
+
+  // Load conversations + messages khi mount
+  useEffect(() => {
+    if (!user) return
+    const load = async () => {
+      await loadConversations()
+      if (currentConversationId) {
+        await loadMessages(currentConversationId)
+      }
+      setLoaded(true)
+    }
+    load()
+  }, [user, currentConversationId])
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
 
-  const getDoraReply = (userText) => {
-    const text = userText.toLowerCase()
-    if (text.includes('mệt') || text.includes('kiệt sức'))
-      return 'Mình hiểu cảm giác mệt mỏi đó 🌙 Bạn thử nghe một bản nhạc lo-fi nhẹ nhàng để thư giãn nhé:\n"Rainy Café Lofi" - https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn\nHoặc hãy chia sẻ thêm cho mình biết điều gì đang làm bạn mệt mỏi nhé.'
-    if (text.includes('buồn') || text.includes('khóc'))
-      return 'Buồn cũng không sao đâu bạn ơi 🌧️ Mình luôn ở đây lắng nghe bạn. Bạn thử nghe bài hát này xem có giúp vơi bớt phần nào không nhé:\n"Someone Like You" của Adele - https://open.spotify.com/track/1EzrEOXmMH3G43FST1y73H\nChuyện gì đã xảy ra vậy bạn?'
-    if (text.includes('stress') || text.includes('lo lắng') || text.includes('áp lực'))
-      return 'Nghe có vẻ bạn đang căng thẳng quá 😮‍💨 Thử hít thở sâu cùng mình nhé? Ngoài ra, playlist acoustic êm dịu này sẽ giúp bạn dịu lại đấy:\n"Acoustic Chill" - https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO\nBạn cảm thấy thế nào sau khi nghỉ ngơi một chút?'
-    if (text.includes('vui') || text.includes('hạnh phúc') || text.includes('ổn'))
-      return 'Thật tuyệt vời khi thấy bạn tràn đầy năng lượng tích cực! 🌸 Hãy cùng nghe bài nhạc vui tươi này để duy trì tâm trạng tốt này nhé:\n"Happy" của Pharrell Williams - https://open.spotify.com/track/60nZcECyYwG6uJ0vT9y1z\nKể cho mình nghe điều gì đã mang lại niềm vui cho bạn hôm nay nào!'
-    return 'Mình hiểu rồi 💙 Cảm ơn bạn đã luôn tin tưởng và chia sẻ với mình. Gợi ý bạn nghe thử playlist này để thư giãn nhé:\n"Happy Beats" - https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0\nBạn muốn tâm sự thêm điều gì không?'
-  }
-
   const handleSend = async (text = input.trim()) => {
-    if (!text) return
-
-    // Add user message to store (and sync with DB if logged in)
-    await addMessage({ role: 'user', text, time: new Date() })
+    if (!text || isTyping) return
     setInput('')
     setIsTyping(true)
-
-    // Call Gemini API and add response
     try {
-      const aiReply = await askDora(text, messages)
-      await addMessage({
-        role: 'ai',
-        text: aiReply,
-        time: new Date(),
-      })
-    } catch (err) {
-      console.warn('Gemini error, falling back to local handler:', err)
-      // Robust offline fallback
-      setTimeout(async () => {
-        const localReply = getDoraReply(text)
-        await addMessage({
-          role: 'ai',
-          text: localReply,
-          time: new Date(),
-        })
-      }, 1000)
+      let convId = currentConversationId
+      // Nếu chưa có conversation, tạo mới
+      if (!convId) {
+        const conv = await createConversation('Cuộc trò chuyện mới')
+        convId = conv?.id
+      }
+      if (convId) {
+        await sendMessage(convId, text)
+      }
+    } catch (e) {
+      console.error('Send error:', e)
     } finally {
       setIsTyping(false)
     }
-
     inputRef.current?.focus()
   }
 
@@ -190,24 +180,22 @@ export default function ChatPage() {
 
   const handleClearChat = () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện này không?')) {
-      clearMessages()
+      clearMessages(currentConversationId)
     }
   }
 
-  // Generate dynamic sidebar history from user's actual journal entries
-  const sidebarHistory = journals.slice(0, 5).map((j) => {
-    const moodObj = MOODS.find((m) => m.value === j.mood)
-    return {
-      date: new Date(j.date).toLocaleDateString('vi-VN', { day: 'numeric', month: 'numeric' }),
-      mood: moodObj?.emoji || '😊',
-      preview: j.text,
-    }
-  })
+  const handleSelectConversation = async (convId) => {
+    useAppStore.setState({ currentConversationId: convId })
+    await loadMessages(convId)
+  }
+
+  const handleNewConversation = async () => {
+    await createConversation('Cuộc trò chuyện mới')
+  }
 
   // Display initial instruction bubble if message history is empty
   const displayMessages = messages.length === 0 ? [INITIAL_MESSAGE] : messages
 
-  const userDisplayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Bạn'
   const todayMood = useAppStore(s => s.todayMood)
   const todayMoodObj = MOODS.find(m => m.value === todayMood)
 
@@ -218,7 +206,7 @@ export default function ChatPage() {
         <div className="p-5 border-b border-primary/20">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl">
-              🌸
+              
             </div>
             <div>
               <p className="font-display font-semibold text-text-main">Dora</p>
@@ -238,26 +226,43 @@ export default function ChatPage() {
         </div>
 
         <div className="p-4 flex-1 flex flex-col min-h-0">
-          <p className="font-ui text-xs text-text-sub uppercase tracking-wider mb-3">Nhật ký gần đây</p>
+          <div className="flex items-center justify-between mb-3">
+            <p className="font-ui text-xs text-text-sub uppercase tracking-wider">Hội thoại</p>
+            <button
+              onClick={handleNewConversation}
+              className="p-1.5 rounded-lg hover:bg-primary/10 text-text-sub hover:text-primary transition-colors cursor-pointer"
+              title="Tạo hội thoại mới"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
           <div className="flex flex-col gap-1 overflow-y-auto flex-1 min-h-0">
-            {sidebarHistory.length > 0 ? (
-              sidebarHistory.map((h, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 px-3 py-3 rounded-2xl text-left bg-primary/5 border border-transparent"
+            {conversations.length > 0 ? (
+              conversations.map((conv) => (
+                <button
+                  key={conv.id}
+                  onClick={() => handleSelectConversation(conv.id)}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-3 rounded-2xl text-left border border-transparent transition-colors cursor-pointer",
+                    conv.id === currentConversationId
+                      ? "bg-primary/15 border-primary/30"
+                      : "bg-primary/5 hover:bg-primary/10"
+                  )}
                 >
-                  <span className="text-lg shrink-0">{h.mood}</span>
+                  <MessageSquare size={16} className="text-text-sub shrink-0" />
                   <div className="min-w-0">
-                    <p className="font-ui text-xs text-text-sub">{h.date}</p>
-                    <p className="font-body text-sm text-text-main truncate">{h.preview}</p>
+                    <p className="font-body text-sm text-text-main truncate">{conv.title || 'Cuộc trò chuyện'}</p>
+                    <p className="font-ui text-[10px] text-text-sub">
+                      {conv.updatedAt ? new Date(conv.updatedAt).toLocaleDateString('vi-VN') : ''}
+                    </p>
                   </div>
-                </div>
+                </button>
               ))
             ) : (
               <div className="py-8 text-center px-4">
-                <p className="text-2xl mb-1">📝</p>
+                <p className="text-2xl mb-1">💬</p>
                 <p className="font-ui text-xs text-text-sub leading-relaxed">
-                  Chưa có nhật ký nào.<br />Hãy ghi nhật ký ở trang tiếp theo nhé!
+                  Chưa có hội thoại nào.<br />Hãy bắt đầu trò chuyện nhé!
                 </p>
               </div>
             )}

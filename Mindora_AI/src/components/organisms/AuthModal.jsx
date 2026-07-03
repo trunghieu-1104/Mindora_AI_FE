@@ -22,11 +22,9 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
 
     try {
       if (mode === 'login') {
-        const { error: loginErr } = await login(email, password)
-        if (loginErr) throw loginErr
+        await login(email, password)
       } else {
-        const { error: signUpErr } = await signup(email, password, displayName)
-        if (signUpErr) throw signUpErr
+        await signup(email, password, displayName)
       }
       onClose()
     } catch (err) {

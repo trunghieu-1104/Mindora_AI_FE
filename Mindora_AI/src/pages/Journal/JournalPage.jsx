@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Edit3, X, Save, Tag as TagIcon, Trash2, Book } from 'lucide-react'
 import Button from '../../components/atoms/Button'
@@ -6,23 +6,6 @@ import Tag from '../../components/atoms/Tag'
 import { MOODS, formatDate, cn } from '../../lib/utils'
 import { useAppStore } from '../../store/useAppStore'
 import CircularMoodPicker from '../../components/organisms/CircularMoodPicker'
-
-const SAMPLE_JOURNALS = [
-  {
-    id: 'sample-1',
-    date: new Date(2026, 4, 29),
-    mood: 'sad',
-    text: 'Hôm nay công việc áp lực nhiều, cảm thấy mệt mỏi và không có năng lượng. Tưởng mọi thứ đang tiến triển tốt nhưng lại gặp trở ngại mới...',
-    tags: ['công_việc', 'stress'],
-  },
-  {
-    id: 'sample-2',
-    date: new Date(2026, 4, 27),
-    mood: 'happy',
-    text: 'Hôm nay đi cà phê với bạn bè, cảm giác thật nhẹ nhàng. Được nói chuyện nhiều, cười nhiều — đúng thứ mình cần.',
-    tags: ['bạn_bè', 'vui_vẻ'],
-  },
-]
 
 function JournalCard({ entry, onEdit, onDelete }) {
   const mood = MOODS.find(m => m.value === entry.mood)
@@ -222,15 +205,23 @@ function WriteModal({ onClose, editEntry }) {
 }
 
 export default function JournalPage() {
-  const { journals, user, deleteJournal } = useAppStore()
+  const { journals, user, deleteJournal, loadJournals } = useAppStore()
   const [showModal, setShowModal] = useState(false)
   const [editEntry, setEditEntry] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  const allEntries = user
-    ? [...journals].sort((a, b) => new Date(b.date) - new Date(a.date))
-    : journals.length > 0 
-      ? [...journals].sort((a, b) => new Date(b.date) - new Date(a.date))
-      : [...SAMPLE_JOURNALS].sort((a, b) => new Date(b.date) - new Date(a.date))
+  // Load journals từ backend khi mount
+  useEffect(() => {
+    if (!user) return
+    const load = async () => {
+      setLoading(true)
+      await loadJournals()
+      setLoading(false)
+    }
+    load()
+  }, [user])
+
+  const allEntries = [...journals].sort((a, b) => new Date(b.date) - new Date(a.date))
 
   const todayStr = new Date().toDateString()
   const todayMoodDone = allEntries.some(
@@ -295,32 +286,42 @@ export default function JournalPage() {
         </motion.div>
       )}
 
+      {/* Loading state */}
+      {loading && user && (
+        <div className="text-center py-14">
+          <p className="text-2xl mb-2">⏳</p>
+          <p className="font-body text-sm text-text-sub">Đang tải nhật ký...</p>
+        </div>
+      )}
+
       {/* Journal list */}
-      <div className="flex flex-col gap-5">
-        {allEntries.length > 0 ? (
-          allEntries.map(entry => (
-            <JournalCard
-              key={entry.id}
-              entry={entry}
-              onEdit={() => { setEditEntry(entry); setShowModal(true) }}
-              onDelete={() => handleDelete(entry.id)}
-            />
-          ))
-        ) : (
-          <div className="text-center py-14 card border border-[#EBE6DD] bg-white">
-            <p className="text-4xl mb-3">🌸</p>
-            <p className="font-display text-lg text-text-main font-semibold">Chưa có trang nhật ký nào</p>
-            <p className="font-body text-xs text-text-sub mt-1.5 mb-5">Hãy bắt đầu lưu giữ cảm xúc của bạn từ hôm nay!</p>
-            <Button
-              icon={<Plus size={14} />}
-              onClick={() => { setEditEntry(null); setShowModal(true) }}
-              className="py-2.5 text-sm mx-auto"
-            >
-              Viết nhật ký ngay
-            </Button>
-          </div>
-        )}
-      </div>
+      {!loading && (
+        <div className="flex flex-col gap-5">
+          {allEntries.length > 0 ? (
+            allEntries.map(entry => (
+              <JournalCard
+                key={entry.id}
+                entry={entry}
+                onEdit={() => { setEditEntry(entry); setShowModal(true) }}
+                onDelete={() => handleDelete(entry.id)}
+              />
+            ))
+          ) : (
+            <div className="text-center py-14 card border border-[#EBE6DD] bg-white">
+              <p className="text-4xl mb-3">....</p>
+              <p className="font-display text-lg text-text-main font-semibold">Chưa có trang nhật ký nào</p>
+              <p className="font-body text-xs text-text-sub mt-1.5 mb-5">Hãy bắt đầu lưu giữ cảm xúc của bạn từ hôm nay!</p>
+              <Button
+                icon={<Plus size={14} />}
+                onClick={() => { setEditEntry(null); setShowModal(true) }}
+                className="py-2.5 text-sm mx-auto"
+              >
+                Viết nhật ký ngay
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Write modal */}
       <AnimatePresence>

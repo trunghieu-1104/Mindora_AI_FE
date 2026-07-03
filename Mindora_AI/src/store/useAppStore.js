@@ -1,12 +1,14 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { supabase } from '../lib/supabase'
+import { api, getToken, setToken, removeToken } from '../lib/api'
+import { askDora } from '../lib/gemini'
 
 export const useAppStore = create(
   persist(
     (set, get) => ({
       // Auth State
       user: null,
+      currentConversationId: null,
       setUser: (user) => set({ user }),
 
       // Spotify Player State
@@ -19,233 +21,261 @@ export const useAppStore = create(
       todayMood: null,
       setTodayMood: (mood) => set({ todayMood: mood }),
 
-      // Chat messages
+      // Chat — conversations + messages
+      conversations: [],
       messages: [],
-      addMessage: async (msg) => {
-        const user = get().user
-        if (user) {
-          // Sync to Supabase
-          const { data, error } = await supabase
-            .from('chat_messages')
-            .insert({
-              user_id: user.id,
-              role: msg.role,
-              text: msg.text,
-              created_at: msg.time || new Date()
-            })
-            .select()
-            .single()
 
-          if (!error && data) {
-            const formattedMsg = {
-              id: data.id,
-              role: data.role,
-              text: data.text,
-              time: new Date(data.created_at)
-            }
-            set((s) => ({ messages: [...s.messages, formattedMsg] }))
-            return formattedMsg
-          }
+      loadConversations: async () => {
+        try {
+          const data = await api.get('/conversations')
+          set({ conversations: data })
+        } catch (e) {
+          console.error('loadConversations error:', e)
         }
-        
-        // Guest mode fallback
-        const localMsg = { ...msg, id: msg.id || Date.now(), time: msg.time || new Date() }
-        set((s) => ({ messages: [...s.messages, localMsg] }))
-        return localMsg
       },
-      
-      clearMessages: async () => {
-        const user = get().user
-        if (user) {
-          await supabase.from('chat_messages').delete().eq('user_id', user.id)
+
+      loadMessages: async (conversationId) => {
+        if (!conversationId) return
+        try {
+          const data = await api.get(`/conversations/${conversationId}/messages?page=0&size=200`)
+          // Backend trả PageResponse { content: [...], page, size, ... }
+          const msgs = (data.content || []).map(m => ({
+            id: m.id,
+            role: m.role,       // 'user' | 'ai'
+            text: m.content,    // map content → text cho UI
+            time: m.createdAt,
+            detectedEmotion: m.detectedEmotion,
+            sentimentScore: m.sentimentScore,
+          }))
+          set({ messages: msgs })
+        } catch (e) {
+          console.error('loadMessages error:', e)
+          set({ messages: [] })
         }
-        set({ messages: [] })
+      },
+
+      sendMessage: async (conversationId, text) => {
+        if (!conversationId || !text) return
+
+        // 1. Gửi user message lên backend
+        const userMsg = await api.postAuth(`/conversations/${conversationId}/messages`, {
+          role: 'user',
+          content: text,
+        })
+        const userLocal = {
+          id: userMsg.id,
+          role: 'user',
+          text: userMsg.content,
+          time: userMsg.createdAt,
+          detectedEmotion: userMsg.detectedEmotion,
+          sentimentScore: userMsg.sentimentScore,
+        }
+        set((s) => ({ messages: [...s.messages, userLocal] }))
+
+        // 2. Gọi AI reply (local keyword-match)
+        const aiReplyText = await askDora(text, get().messages)
+
+        // 3. Lưu AI reply lên backend
+        const aiMsg = await api.postAuth(`/conversations/${conversationId}/messages`, {
+          role: 'ai',
+          content: aiReplyText,
+        })
+        const aiLocal = {
+          id: aiMsg.id,
+          role: 'ai',
+          text: aiMsg.content,
+          time: aiMsg.createdAt,
+        }
+        set((s) => ({ messages: [...s.messages, aiLocal] }))
+
+        return aiLocal
+      },
+
+      clearMessages: async (conversationId) => {
+        if (!conversationId) {
+          set({ messages: [] })
+          return
+        }
+        try {
+          await api.delete(`/conversations/${conversationId}/messages`)
+          set({ messages: [] })
+        } catch (e) {
+          console.error('clearMessages error:', e)
+        }
+      },
+
+      createConversation: async (title) => {
+        try {
+          const conv = await api.postAuth('/conversations', { title })
+          set((s) => ({
+            conversations: [conv, ...s.conversations],
+            currentConversationId: conv.id,
+            messages: [],
+          }))
+          return conv
+        } catch (e) {
+          console.error('createConversation error:', e)
+        }
       },
 
       // Journal entries
       journals: [],
-      
-      addJournal: async (entry) => {
-        const user = get().user
-        if (user) {
-          const { data, error } = await supabase
-            .from('journals')
-            .insert({
-              user_id: user.id,
-              date: entry.date || new Date().toISOString().split('T')[0],
-              mood: entry.mood,
-              text: entry.text,
-              tags: entry.tags || []
-            })
-            .select()
-            .single()
 
-          if (!error && data) {
-            const newJournal = {
-              id: data.id,
-              date: new Date(data.date),
-              mood: data.mood,
-              text: data.text,
-              tags: data.tags
-            }
-            set((s) => ({ journals: [newJournal, ...s.journals] }))
-            return
-          }
+      loadJournals: async () => {
+        try {
+          const data = await api.get('/journals?page=0&size=100')
+          // Backend trả PageResponse
+          const journals = (data.content || []).map(j => ({
+            id: j.id,
+            title: j.title,
+            text: j.content,       // map content → text cho UI
+            mood: j.moodValue,     // map moodValue → mood cho UI
+            tags: j.tags || [],
+            date: j.entryDate,     // map entryDate → date cho UI
+            createdAt: j.createdAt,
+            updatedAt: j.updatedAt,
+          }))
+          set({ journals })
+        } catch (e) {
+          console.error('loadJournals error:', e)
         }
-        
-        // Guest mode fallback
-        const localJournal = { ...entry, id: entry.id || Date.now(), date: entry.date || new Date() }
-        set((s) => ({ journals: [localJournal, ...s.journals] }))
       },
-      
-      updateJournal: async (id, updatedData) => {
-        const user = get().user
-        if (user) {
-          const { error } = await supabase
-            .from('journals')
-            .update({
-              mood: updatedData.mood,
-              text: updatedData.text,
-              tags: updatedData.tags
-            })
-            .eq('id', id)
-            .eq('user_id', user.id)
 
-          if (!error) {
-            set((s) => ({
-              journals: s.journals.map((j) => (j.id === id ? { ...j, ...updatedData } : j)),
-            }))
-            return
-          }
+      addJournal: async (entry) => {
+        const body = {
+          title: entry.title || '',
+          content: entry.text,         // UI text → backend content
+          moodValue: entry.mood,       // UI mood → backend moodValue
+          tags: entry.tags || [],
+          entryDate: entry.date || new Date().toISOString().split('T')[0],
         }
+        const data = await api.postAuth('/journals', body)
+        const local = {
+          id: data.id,
+          title: data.title,
+          text: data.content,
+          mood: data.moodValue,
+          tags: data.tags || [],
+          date: data.entryDate,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+        }
+        set((s) => ({ journals: [local, ...s.journals] }))
+        return local
+      },
 
-        // Guest mode fallback
+      updateJournal: async (id, updatedData) => {
+        // Tìm journal cũ để merge
+        const existing = get().journals.find(j => j.id === id)
+        const body = {
+          title: updatedData.title ?? existing?.title ?? '',
+          content: updatedData.text ?? existing?.text ?? '',
+          moodValue: updatedData.mood ?? existing?.mood ?? '',
+          tags: updatedData.tags ?? existing?.tags ?? [],
+          entryDate: updatedData.date ?? existing?.date ?? new Date().toISOString().split('T')[0],
+        }
+        const data = await api.put(`/journals/${id}`, body)
+        const local = {
+          id: data.id,
+          title: data.title,
+          text: data.content,
+          mood: data.moodValue,
+          tags: data.tags || [],
+          date: data.entryDate,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+        }
         set((s) => ({
-          journals: s.journals.map((j) => (j.id === id ? { ...j, ...updatedData } : j)),
+          journals: s.journals.map(j => j.id === id ? local : j),
         }))
       },
-      
+
       deleteJournal: async (id) => {
-        const user = get().user
-        if (user) {
-          const { error } = await supabase
-            .from('journals')
-            .delete()
-            .eq('id', id)
-            .eq('user_id', user.id)
+        await api.delete(`/journals/${id}`)
+        set((s) => ({ journals: s.journals.filter(j => j.id !== id) }))
+      },
 
-          if (!error) {
-            set((s) => ({ journals: s.journals.filter((j) => j.id !== id) }))
-            return
-          }
+      // Mood logs
+      moodLogs: [],
+
+      loadMoodWeek: async () => {
+        try {
+          const data = await api.get('/moods/week')
+          set({ moodLogs: data })
+        } catch (e) {
+          console.error('loadMoodWeek error:', e)
         }
+      },
 
-        // Guest mode fallback
-        set((s) => ({ journals: s.journals.filter((j) => j.id !== id) }))
+      logMood: async (moodData) => {
+        // moodData: { moodScore, moodEmoji, note, logDate }
+        const data = await api.postAuth('/moods', {
+          moodScore: moodData.moodScore,
+          moodEmoji: moodData.moodEmoji || '',
+          note: moodData.note || '',
+          logDate: moodData.logDate || new Date().toISOString().split('T')[0],
+        })
+        set((s) => ({ moodLogs: [...s.moodLogs, data] }))
+        return data
       },
 
       // UI state
       sidebarOpen: true,
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
 
-      // Sync Database Data
-      fetchUserData: async () => {
-        const user = get().user
-        if (!user) return
-
-        // 1. Fetch Journals
-        const { data: journalData, error: journalError } = await supabase
-          .from('journals')
-          .select('*')
-          .order('date', { ascending: false })
-
-        if (!journalError && journalData) {
-          const formattedJournals = journalData.map(j => ({
-            id: j.id,
-            date: new Date(j.date),
-            mood: j.mood,
-            text: j.text,
-            tags: j.tags
-          }))
-          set({ journals: formattedJournals })
-        }
-
-        // 2. Fetch Chat history
-        const { data: chatData, error: chatError } = await supabase
-          .from('chat_messages')
-          .select('*')
-          .order('created_at', { ascending: true })
-
-        if (!chatError && chatData) {
-          const formattedMessages = chatData.map(msg => ({
-            id: msg.id,
-            role: msg.role,
-            text: msg.text,
-            time: new Date(msg.created_at)
-          }))
-          set({ messages: formattedMessages })
-        }
-      },
-
-      // Auth Operations
+      // Auth — kết nối Spring Boot backend
       login: async (email, password) => {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) return { error }
-        set({ user: data.user })
-        await get().fetchUserData()
+        const data = await api.post('/auth/login', { email, password })
+        setToken(data.token)
+        set({
+          user: data.user,
+          currentConversationId: data.conversationId ?? null,
+        })
         return { data }
       },
 
       signup: async (email, password, displayName) => {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              display_name: displayName,
-            }
-          }
+        const data = await api.post('/auth/register', { email, password, fullName: displayName })
+        setToken(data.token)
+        set({
+          user: data.user,
+          currentConversationId: data.conversationId ?? null,
         })
-        if (error) return { error }
-        set({ user: data.user })
-        await get().fetchUserData()
         return { data }
       },
 
       logout: async () => {
-        const { error } = await supabase.auth.signOut()
-        if (error) return { error }
-        set({ user: null, journals: [], messages: [], todayMood: null })
+        removeToken()
+        set({
+          user: null,
+          journals: [],
+          messages: [],
+          conversations: [],
+          moodLogs: [],
+          todayMood: null,
+          currentConversationId: null,
+        })
         return { success: true }
       },
 
       initSession: async () => {
+        const token = getToken()
+        if (!token) return
         try {
-          const { data: { session } } = await supabase.auth.getSession()
-          if (session?.user) {
-            set({ user: session.user })
-            await get().fetchUserData()
-          }
-
-          supabase.auth.onAuthStateChange(async (event, session) => {
-            if (session?.user) {
-              set({ user: session.user })
-              await get().fetchUserData()
-            } else {
-              set({ user: null, journals: [], messages: [], todayMood: null })
-            }
-          })
-        } catch (err) {
-          console.warn('[Mindora] Không thể kết nối Supabase, chạy ở chế độ offline:', err.message)
+          const data = await api.get('/users/me')
+          set({ user: data })
+        } catch {
+          removeToken()
+          set({ user: null })
         }
-      }
+      },
     }),
     {
       name: 'mindbuddy-storage',
       partialize: (s) => ({
         user: s.user,
-        journals: s.journals,
         todayMood: s.todayMood,
+        currentConversationId: s.currentConversationId,
       }),
     }
   )

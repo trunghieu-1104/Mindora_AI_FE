@@ -101,7 +101,7 @@ export default function HomePage() {
 
             <p className="font-body text-text-sub text-base md:text-lg leading-relaxed mb-14 max-w-2xl mx-auto">
               Được xây dựng dựa trên các nguyên lý tâm lý học tích cực và liệu pháp nhận thức hành vi (CBT),
-              Dora đồng hành cùng bạn trên hành trình chăm sóc sức khỏe tinh thần mỗi ngày —
+              Dora đồng hành cùng bạn trên hành trình chăm sóc sức khỏe tinh thần mỗi ngày -
               nhẹ nhàng, không phán xét, luôn sẵn sàng.
             </p>
 

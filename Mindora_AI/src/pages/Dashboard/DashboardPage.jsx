@@ -1,19 +1,10 @@
+import { useEffect, useState } from 'react'
 import {
   ComposedChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
 import { ArrowLeft } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { MOODS, cn } from '../../lib/utils'
-
-const MOCK_MOOD_DATA = [
-  { day: 'T2', score: 6 },
-  { day: 'T3', score: 4 },
-  { day: 'T4', score: 5 },
-  { day: 'T5', score: 3 },
-  { day: 'T6', score: 4 },
-  { day: 'T7', score: 6 },
-  { day: 'CN', score: 7 },
-]
 
 const MOOD_SCORES = {
   loved: 7,
@@ -39,46 +30,86 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function DashboardPage() {
-  const { journals, deleteJournal } = useAppStore()
+  const { journals, loadJournals, moodLogs, loadMoodWeek, user } = useAppStore()
+  const [loading, setLoading] = useState(true)
 
-  // Calculate dynamic stats
+  // Load data từ backend khi mount
+  useEffect(() => {
+    if (!user) return
+    const load = async () => {
+      setLoading(true)
+      await Promise.all([loadJournals(), loadMoodWeek()])
+      setLoading(false)
+    }
+    load()
+  }, [user])
+
+  // Tính stats từ mood logs thật (từ backend)
+  const totalMoodEntries = moodLogs.length
+  const totalMoodScore = moodLogs.reduce((acc, m) => acc + (m.moodScore || 4), 0)
+  const averageMoodScore = totalMoodEntries > 0 ? (totalMoodScore / totalMoodEntries) : 4.5
+
+  // Fallback: nếu chưa có mood logs, tính từ journals
   const totalEntries = journals.length
-  const totalScores = journals.reduce((acc, j) => acc + (MOOD_SCORES[j.mood] || 4), 0)
-  const averageScore = totalEntries > 0 ? (totalScores / totalEntries) : 4.5
-  const formattedAvg = averageScore.toFixed(2)
+  const journalScores = journals.reduce((acc, j) => acc + (MOOD_SCORES[j.mood] || 4), 0)
+  const journalAvg = totalEntries > 0 ? (journalScores / totalEntries) : 4.5
+
+  const displayAvg = totalMoodEntries > 0 ? averageMoodScore : journalAvg
+  const formattedAvg = displayAvg.toFixed(2)
 
   // Calculate check-ins count in last 7 days
-  const uniqueCheckinDates = new Set(journals.map(j => new Date(j.date).toDateString()))
-  const last7DaysCount = Array.from(uniqueCheckinDates).filter(dateStr => {
-    const checkinTime = new Date(dateStr).getTime()
-    const diff = new Date().getTime() - checkinTime
-    return diff <= 7 * 24 * 60 * 60 * 1000
-  }).length
+  const last7DaysCount = moodLogs.length > 0
+    ? new Set(moodLogs.map(m => m.logDate)).size
+    : new Set(journals.map(j => new Date(j.date).toDateString())).size
 
-  // Generate 7-day dynamic chart data
+  // Generate 7-day chart data từ mood logs backend
   const getWeeklyMoodData = () => {
-    const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
-    // If no journals, return mock data
-    if (totalEntries === 0) return MOCK_MOOD_DATA
+    if (moodLogs.length > 0) {
+      // Dùng mood logs thật từ backend
+      const data = []
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date()
+        d.setDate(d.getDate() - i)
+        const dayIdx = d.getDay()
+        const dayName = dayIdx === 0 ? 'CN' : `T${dayIdx + 1}`
+        const dateStr = d.toISOString().split('T')[0]
 
-    const data = []
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date()
-      d.setDate(d.getDate() - i)
-      const dStr = d.toDateString()
-      // get day name in vietnamese
-      const dayIdx = d.getDay()
-      const dayName = dayIdx === 0 ? 'CN' : `T${dayIdx + 1}`
-
-      const dayJournals = journals.filter(j => new Date(j.date).toDateString() === dStr)
-      if (dayJournals.length > 0) {
-        const avgScore = dayJournals.reduce((s, j) => s + (MOOD_SCORES[j.mood] || 4), 0) / dayJournals.length
-        data.push({ day: dayName, score: avgScore })
-      } else {
-        data.push({ day: dayName, score: 4.0 }) // neutral middle
+        const dayLog = moodLogs.find(m => m.logDate === dateStr)
+        data.push({
+          day: dayName,
+          score: dayLog ? dayLog.moodScore : 4.0
+        })
       }
+      return data
     }
-    return data
+
+    // Fallback: dùng journals
+    if (totalEntries > 0) {
+      const data = []
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date()
+        d.setDate(d.getDate() - i)
+        const dStr = d.toDateString()
+        const dayIdx = d.getDay()
+        const dayName = dayIdx === 0 ? 'CN' : `T${dayIdx + 1}`
+
+        const dayJournals = journals.filter(j => new Date(j.date).toDateString() === dStr)
+        if (dayJournals.length > 0) {
+          const avgScore = dayJournals.reduce((s, j) => s + (MOOD_SCORES[j.mood] || 4), 0) / dayJournals.length
+          data.push({ day: dayName, score: avgScore })
+        } else {
+          data.push({ day: dayName, score: 4.0 })
+        }
+      }
+      return data
+    }
+
+    // Mock data nếu chưa có gì
+    return [
+      { day: 'T2', score: 6 }, { day: 'T3', score: 4 }, { day: 'T4', score: 5 },
+      { day: 'T5', score: 3 }, { day: 'T6', score: 4 }, { day: 'T7', score: 6 },
+      { day: 'CN', score: 7 },
+    ]
   }
 
   const baseMoodData = getWeeklyMoodData()
@@ -86,24 +117,27 @@ export default function DashboardPage() {
   // Decompose scores into three stacked areas for wave layers (terracotta, peach, warm cream)
   const chartData = baseMoodData.map(d => {
     const score = d.score
-    // Stack layers: 
-    // Layer 1 (Terracotta): up to 2.5
-    // Layer 2 (Peach): up to 2.5 more
-    // Layer 3 (Cream): anything above 5.0
     const terracotta = Math.min(score, 2.5)
     const peach = Math.min(Math.max(score - 2.5, 0), 2.5)
     const cream = Math.max(score - 5.0, 0)
-    return {
-      day: d.day,
-      score: score,
-      terracotta,
-      peach,
-      cream
-    }
+    return { day: d.day, score, terracotta, peach, cream }
   })
 
-  // Get active activities/journals log (recent 4)
-  const recentJournals = journals.slice(0, 4)
+  // Get recent journals (top 4)
+  const recentJournals = [...journals]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 4)
+
+  if (loading && user) {
+    return (
+      <div className="min-h-screen bg-[#FDFBF7] py-10 px-4 md:px-8 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-3xl mb-2">⏳</p>
+          <p className="font-body text-sm text-text-sub">Đang tải dữ liệu phân tích...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] py-10 px-4 md:px-8">
@@ -128,7 +162,7 @@ export default function DashboardPage() {
                     <span className="font-ui text-sm text-text-sub">/7.00</span>
                   </div>
                   <p className="font-body text-xs text-text-sub mt-2">
-                    {averageScore >= 5.5 ? 'Tinh thần xuất sắc! ✨' : averageScore >= 4.0 ? 'Bình thản và cân bằng 😌' : 'Cần nghỉ ngơi nhiều hơn 💙'}
+                    {displayAvg >= 5.5 ? 'Tinh thần xuất sắc! ✨' : displayAvg >= 4.0 ? 'Bình thản và cân bằng 😌' : 'Cần nghỉ ngơi nhiều hơn 💙'}
                   </p>
                 </div>
 
@@ -154,10 +188,10 @@ export default function DashboardPage() {
 
                 {/* Metric 4 */}
                 <div className="bg-white/80 border border-[#F2ECE2] rounded-2xl p-4 shadow-inner">
-                  <span className="font-ui text-xs text-text-sub uppercase tracking-wider block mb-1">Mức độ tương tác</span>
+                  <span className="font-ui text-xs text-text-sub uppercase tracking-wider block mb-1">Mood logs tuần này</span>
                   <div className="flex items-baseline gap-1">
-                    <span className="font-display text-3xl text-text-main font-bold">714</span>
-                    <span className="font-ui text-xs text-text-sub">lượt kết nối</span>
+                    <span className="font-display text-3xl text-text-main font-bold">{totalMoodEntries}</span>
+                    <span className="font-ui text-xs text-text-sub">lần ghi nhận</span>
                   </div>
                 </div>
               </div>
@@ -183,7 +217,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* STACKED AREA CHART WAVES (mimicking biểu đồ.jpg & Insight.jpg) */}
+            {/* STACKED AREA CHART WAVES */}
             <div className="bg-white border border-[#EBE6DD] rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -230,30 +264,10 @@ export default function DashboardPage() {
                     />
                     <Tooltip content={<CustomTooltip />} />
                     
-                    {/* Stacked Areas matching biểu đồ.jpg */}
-                    <Area 
-                      type="monotone" 
-                      dataKey="terracotta" 
-                      stackId="1" 
-                      stroke="none" 
-                      fill="url(#areaTerracotta)" 
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="peach" 
-                      stackId="1" 
-                      stroke="none" 
-                      fill="url(#areaPeach)" 
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="cream" 
-                      stackId="1" 
-                      stroke="none" 
-                      fill="url(#areaCream)" 
-                    />
+                    <Area type="monotone" dataKey="terracotta" stackId="1" stroke="none" fill="url(#areaTerracotta)" />
+                    <Area type="monotone" dataKey="peach" stackId="1" stroke="none" fill="url(#areaPeach)" />
+                    <Area type="monotone" dataKey="cream" stackId="1" stroke="none" fill="url(#areaCream)" />
 
-                    {/* Smooth brown outline trend line on top */}
                     <Line 
                       type="monotone" 
                       dataKey="score" 
@@ -268,7 +282,7 @@ export default function DashboardPage() {
               <p className="text-center font-ui text-[11px] text-text-sub mt-4">7 days analytics</p>
             </div>
 
-            {/* THREE LOWER WIDGET CARDS (mimicking bottom of Insight.jpg) */}
+            {/* THREE LOWER WIDGET CARDS */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
               {/* Card 1: Period Checkin */}
@@ -279,13 +293,14 @@ export default function DashboardPage() {
                 </div>
                 
                 <div className="flex items-center gap-6 mt-6">
-                  {/* Large visual circle badge */}
                   <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center font-display text-2xl text-white font-bold shadow-md shadow-primary/20 shrink-0">
-                    19
+                    {last7DaysCount}
                   </div>
                   <div>
                     <span className="font-ui text-xs text-text-sub uppercase tracking-wider block">Điểm tuần</span>
-                    <span className="font-body font-bold text-text-main text-sm">Ghi chép đều đặn</span>
+                    <span className="font-body font-bold text-text-main text-sm">
+                      {last7DaysCount >= 5 ? 'Ghi chép đều đặn' : last7DaysCount >= 3 ? 'Khá ổn' : 'Cần cải thiện'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -299,11 +314,18 @@ export default function DashboardPage() {
 
                 <div className="flex items-center gap-10 mt-6">
                   <div>
-                    <span className="font-display text-3xl text-secondary font-bold block">35</span>
+                    <span className="font-display text-3xl text-secondary font-bold block">
+                      {totalMoodEntries > 0 
+                        ? Math.round((moodLogs.filter(m => m.moodScore >= 5).length / totalMoodEntries) * 100) 
+                        : totalEntries > 0 
+                          ? Math.round((journals.filter(j => ['happy', 'loved'].includes(j.mood)).length / totalEntries) * 100)
+                          : 0
+                      }
+                    </span>
                     <span className="font-ui text-[10px] text-text-sub uppercase tracking-wider">Tần suất tích cực (%)</span>
                   </div>
                   <div>
-                    <span className="font-display text-3xl text-primary font-bold block">9.9</span>
+                    <span className="font-display text-3xl text-primary font-bold block">{formattedAvg}</span>
                     <span className="font-ui text-[10px] text-text-sub uppercase tracking-wider">Cân bằng tâm lý</span>
                   </div>
                 </div>
@@ -311,7 +333,7 @@ export default function DashboardPage() {
 
             </div>
 
-            {/* Card 3: Hloatunionis (Recent Journals Activity list) */}
+            {/* Card 3: Recent Journals Activity list */}
             <div className="bg-white border border-[#EBE6DD] rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4 border-b border-primary/5 pb-2">
                 <h4 className="font-display text-base text-text-main font-semibold">Lịch sử nhật ký hoạt động</h4>
@@ -335,9 +357,8 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        {/* Brown themed "Xem" button */}
                         <button 
-                          onClick={() => window.location.hash = '#/journal'}
+                          onClick={() => window.location.href = '/journal'}
                           className="px-3.5 py-1.5 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-full font-ui text-[10px] font-semibold transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0"
                         >
                           Xem

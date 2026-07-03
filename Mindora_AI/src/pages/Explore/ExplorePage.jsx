@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Play, Pause, Music, X, Check, AlertCircle } from 'lucide-react'
 import { cn, parseSpotifyUrl } from '../../lib/utils'
@@ -101,16 +101,41 @@ const MUSIC = [
 function BreathingExercise() {
   const [phase, setPhase] = useState('idle')
   const [count, setCount] = useState(0)
+  const timerRef = useRef(null)
 
-  const start = () => {
-    setPhase('inhale')
-    setCount(4)
-    let c = 4
-    const tick = setInterval(() => {
+  useEffect(() => () => clearTimeout(timerRef.current), [])
+
+  const runPhase = (name, duration, onDone) => {
+    setPhase(name)
+    setCount(duration)
+    let c = duration
+    const tick = () => {
       c -= 1
       setCount(c)
-      if (c === 0) clearInterval(tick)
-    }, 1000)
+      if (c > 0) {
+        timerRef.current = setTimeout(tick, 1000)
+      } else {
+        onDone()
+      }
+    }
+    timerRef.current = setTimeout(tick, 1000)
+  }
+
+  const start = () => {
+    clearTimeout(timerRef.current)
+    const cycle = () =>
+      runPhase('inhale', 4, () =>
+        runPhase('hold', 7, () =>
+          runPhase('exhale', 8, cycle)
+        )
+      )
+    cycle()
+  }
+
+  const stop = () => {
+    clearTimeout(timerRef.current)
+    setPhase('idle')
+    setCount(0)
   }
 
   const phaseLabel = {
@@ -120,18 +145,24 @@ function BreathingExercise() {
     exhale: `Thở ra... ${count}`,
   }
 
+  const phaseColor = {
+    idle:   'bg-primary/30 hover:bg-primary/50',
+    inhale: 'bg-primary/50 animate-breathe',
+    hold:   'bg-secondary/60 animate-pulse-soft',
+    exhale: 'bg-primary/30 animate-breathe',
+  }
+
   return (
     <div className="card text-center py-12">
       <h3 className="font-display text-2xl text-text-main mb-2">Bài tập thở 4-7-8</h3>
       <p className="font-body text-text-sub text-sm mb-10">Giảm căng thẳng ngay lập tức</p>
 
       <div className="relative flex items-center justify-center mb-8">
-        <div className={cn(
-          'w-36 h-36 rounded-full flex items-center justify-center cursor-pointer transition-all duration-1000',
-          phase === 'idle'
-            ? 'bg-primary/30 hover:bg-primary/50'
-            : 'bg-primary/50 animate-breathe'
-        )}
+        <div
+          className={cn(
+            'w-36 h-36 rounded-full flex items-center justify-center cursor-pointer transition-all duration-1000',
+            phaseColor[phase]
+          )}
           onClick={phase === 'idle' ? start : undefined}
         >
           <div className="w-24 h-24 rounded-full bg-primary/60 flex items-center justify-center">
@@ -141,6 +172,16 @@ function BreathingExercise() {
           </div>
         </div>
       </div>
+
+      {phase !== 'idle' && (
+        <button
+          onClick={stop}
+          className="font-ui text-xs text-text-sub hover:text-danger transition-colors cursor-pointer mb-4"
+        >
+          Dừng lại
+        </button>
+      )}
+
       <p className="font-body text-text-sub text-sm">Kỹ thuật 4-7-8 giúp hệ thần kinh bình tĩnh lại</p>
     </div>
   )

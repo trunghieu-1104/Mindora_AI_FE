@@ -61,7 +61,7 @@
   }
 
   .bg-chat-blobs {
-    background-image: url('/chat.jpg');
+    background-image: url('/chat.png');
     background-size: cover;
     background-position: center;
   }

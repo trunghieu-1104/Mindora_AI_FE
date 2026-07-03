@@ -127,19 +127,31 @@ export default function Navbar() {
                       initial={{ opacity: 0, y: 8, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-48 bg-white border border-primary/20 rounded-2xl shadow-soft overflow-hidden"
+                      className="absolute right-0 mt-3 w-64 bg-white border border-primary/15 rounded-3xl shadow-soft overflow-hidden z-50 animate-scale-in"
                     >
-                      <div className="px-4 py-3 bg-primary/10 border-b border-primary/10">
-                        <p className="font-ui text-xs text-text-sub">Đang đăng nhập bằng</p>
-                        <p className="font-body text-xs font-semibold text-text-main truncate">{user.email}</p>
+                      {/* User Profile Header */}
+                      <div className="p-4 bg-gradient-to-br from-primary/5 to-secondary/5 border-b border-primary/10 flex items-center gap-3">
+                        <Avatar name={userDisplayName} size="sm" className="ring-2 ring-primary/10 shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-body text-xs font-bold text-text-main truncate leading-tight">
+                            {userDisplayName}
+                          </p>
+                          <p className="font-ui text-[10px] text-text-sub truncate mt-0.5 leading-none">
+                            {user.email}
+                          </p>
+                        </div>
                       </div>
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2.5 w-full px-4 py-3 font-ui text-sm text-red-600 hover:bg-red-50 text-left transition-colors"
-                      >
-                        <LogOut size={16} />
-                        Đăng xuất
-                      </button>
+                      
+                      {/* Menu Actions */}
+                      <div className="p-1.5">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-2xl font-ui text-xs text-red-600 hover:bg-red-50 text-left transition-all duration-200 cursor-pointer active:scale-[0.98]"
+                        >
+                          <LogOut size={14} className="text-red-500" />
+                          <span className="font-semibold">Đăng xuất</span>
+                        </button>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

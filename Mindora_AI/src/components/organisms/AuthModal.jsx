@@ -51,117 +51,149 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-organic-pattern rounded-4xl shadow-soft w-full max-w-md overflow-hidden relative border border-primary/20 p-6 md:p-8"
+            className="bg-white rounded-4xl shadow-soft w-full max-w-4xl overflow-hidden relative border border-primary/20 flex flex-col md:flex-row min-h-[500px]"
           >
-            {/* Blurred brand overlay for readability */}
-            <div className="absolute inset-0 bg-[#FCFAF5]/35 backdrop-blur-[1px] pointer-events-none" />
-
             {/* Close button */}
             <button
               onClick={onClose}
-              className="absolute right-5 top-5 p-2 rounded-xl hover:bg-primary/20 text-text-sub transition-colors cursor-pointer z-10"
+              className="absolute right-5 top-5 p-2 rounded-xl hover:bg-primary/10 text-text-sub transition-colors cursor-pointer z-20"
             >
               <X size={18} />
             </button>
 
-            {/* Header */}
-            <div className="text-center mb-6 mt-2 relative z-10">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl mx-auto mb-3 shadow-md">
-                🌸
-              </div>
-              <h2 className="font-display text-2xl font-bold text-text-main flex items-center justify-center gap-2">
-                {mode === 'login' ? 'Chào mừng trở lại' : 'Bắt đầu hành trình'}
-                <Sparkles size={18} className="text-primary-dark animate-pulse" />
-              </h2>
-              <p className="font-body text-xs text-text-sub mt-1">
-                {mode === 'login'
-                  ? 'Hãy đăng nhập để đồng hành cùng Dora và lưu lại hành trình cảm xúc'
-                  : 'Hãy tạo tài khoản để đồng hành cùng Dora ngay hôm nay'}
-              </p>
-            </div>
-
-            {/* Error Banner */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4 p-3 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-2 text-red-700 text-xs font-medium relative z-10"
-              >
-                <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                <p className="leading-relaxed">{error}</p>
-              </motion.div>
-            )}
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 relative z-10">
-              {mode === 'signup' && (
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub">
-                    <User size={16} />
-                  </span>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Tên hiển thị của bạn"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    className="input-field pl-12 bg-white"
-                  />
+            {/* Left Side: Form Column */}
+            <div className="flex-1 p-6 md:p-10 flex flex-col justify-center bg-white">
+              {/* Header */}
+              <div className="mb-6 mt-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center text-lg shadow-sm">
+                    🌸
+                  </div>
+                  <span className="font-ui text-xs font-semibold text-primary uppercase tracking-wider">Mindora</span>
                 </div>
+                <h2 className="font-display text-2xl font-bold text-text-main flex items-center gap-2">
+                  {mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
+                </h2>
+                <p className="font-body text-xs text-text-sub mt-1 leading-relaxed">
+                  {mode === 'login'
+                    ? 'Chào mừng bạn quay trở lại với người đồng hành Dora'
+                    : 'Bắt đầu hành trình cân bằng sức khỏe tâm lý của bạn'}
+                </p>
+              </div>
+
+              {/* Error Banner */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-4 p-3 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-2 text-red-700 text-xs font-medium"
+                >
+                  <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                  <p className="leading-relaxed">{error}</p>
+                </motion.div>
               )}
 
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub">
-                  <Mail size={16} />
-                </span>
-                <input
-                  type="email"
-                  required
-                  placeholder="Email của bạn"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-field pl-12 bg-white"
-                />
-              </div>
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                {mode === 'signup' && (
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub">
+                      <User size={16} />
+                    </span>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Tên hiển thị của bạn"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className="input-field pl-12 bg-[#FBF7ED]/40 border-primary/20 focus:bg-white"
+                    />
+                  </div>
+                )}
 
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub">
-                  <Lock size={16} />
-                </span>
-                <input
-                  type="password"
-                  required
-                  placeholder="Mật khẩu"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pl-12 bg-white"
-                />
-              </div>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub">
+                    <Mail size={16} />
+                  </span>
+                  <input
+                    type="email"
+                    required
+                    placeholder="Email của bạn"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input-field pl-12 bg-[#FBF7ED]/40 border-primary/20 focus:bg-white"
+                  />
+                </div>
 
-              <Button
-                type="submit"
-                loading={loading}
-                className="w-full justify-center mt-2 py-3 rounded-full text-base font-semibold cursor-pointer"
-              >
-                {mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
-              </Button>
-            </form>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub">
+                    <Lock size={16} />
+                  </span>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Mật khẩu"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input-field pl-12 bg-[#FBF7ED]/40 border-primary/20 focus:bg-white"
+                  />
+                </div>
 
-            {/* Toggle Mode Footer */}
-            <div className="text-center mt-6 pt-4 border-t border-primary/20 relative z-10">
-              <p className="font-ui text-xs text-text-sub">
-                {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản rồi?'}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode(mode === 'login' ? 'signup' : 'login')
-                    setError(null)
-                  }}
-                  className="text-primary-dark font-semibold hover:underline ml-1 cursor-pointer"
+                <Button
+                  type="submit"
+                  loading={loading}
+                  className="w-full justify-center mt-2 py-3 rounded-full text-sm font-semibold cursor-pointer"
                 >
-                  {mode === 'login' ? 'Tạo tài khoản ngay' : 'Đăng nhập tại đây'}
-                </button>
-              </p>
+                  {mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
+                </Button>
+              </form>
+
+              {/* Switch Mode Footer */}
+              <div className="text-left mt-6 pt-4 border-t border-primary/10">
+                <p className="font-ui text-xs text-text-sub">
+                  {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản rồi?'}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode(mode === 'login' ? 'signup' : 'login')
+                      setError(null)
+                    }}
+                    className="text-primary font-semibold hover:underline ml-1 cursor-pointer"
+                  >
+                    {mode === 'login' ? 'Đăng ký ngay' : 'Đăng nhập tại đây'}
+                  </button>
+                </p>
+              </div>
+            </div>
+
+            {/* Split Divider "or" Circle */}
+            <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white border border-primary/20 items-center justify-center font-ui text-xs font-semibold text-text-sub z-20">
+              hoặc
+            </div>
+
+            {/* Right Side: Animated Brand Image Column */}
+            <div className="hidden md:flex flex-1 relative bg-secondary-dark overflow-hidden">
+              {/* Ken Burns zoom + slide animation on background.png */}
+              <div 
+                className="absolute inset-0 bg-[url('/background.png')] bg-cover bg-center opacity-85 scale-[1.08] animate-ken-burns pointer-events-none" 
+              />
+              
+              {/* Overlay shading to keep logo text clean */}
+              <div className="absolute inset-0 bg-gradient-to-t from-secondary-dark/65 via-transparent to-black/35 pointer-events-none" />
+
+              <div className="relative z-10 w-full h-full flex flex-col justify-between p-10 text-white select-none">
+                <div>
+                  <h3 className="font-display text-2xl font-bold mb-2 text-white">Mia Companion</h3>
+                  <p className="font-body text-xs text-white/70 max-w-[280px] leading-relaxed">
+                    "Lắng nghe, thấu hiểu và cùng bạn vượt qua những khoảnh khắc căng thẳng nhất."
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#C9A227] animate-ping" />
+                  <span className="font-ui text-[10px] text-white/50 uppercase tracking-widest">Dora-Unit 01</span>
+                </div>
+              </div>
             </div>
           </motion.div>
         </motion.div>

@@ -54,7 +54,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
             className="bg-organic-pattern rounded-4xl shadow-soft w-full max-w-md overflow-hidden relative border border-primary/20 p-6 md:p-8"
           >
             {/* Blurred brand overlay for readability */}
-            <div className="absolute inset-0 bg-[#FCFAF5]/90 backdrop-blur-[2px] pointer-events-none" />
+            <div className="absolute inset-0 bg-[#FCFAF5]/35 backdrop-blur-[1px] pointer-events-none" />
 
             {/* Close button */}
             <button

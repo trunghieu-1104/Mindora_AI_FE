@@ -332,7 +332,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 bg-[#FCFAF5]/95 backdrop-blur-[1px]">
+        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 bg-[#FCFAF5]/50 backdrop-blur-[1px]">
           <div className="max-w-2xl mx-auto">
             {displayMessages.map(msg => (
               <ChatBubble key={msg.id} msg={msg} />

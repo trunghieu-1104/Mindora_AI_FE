@@ -84,32 +84,23 @@ export default function DashboardPage() {
     }
 
     // Fallback: dùng journals
-    if (totalEntries > 0) {
-      const data = []
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date()
-        d.setDate(d.getDate() - i)
-        const dStr = d.toDateString()
-        const dayIdx = d.getDay()
-        const dayName = dayIdx === 0 ? 'CN' : `T${dayIdx + 1}`
+    const data = []
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      const dStr = d.toDateString()
+      const dayIdx = d.getDay()
+      const dayName = dayIdx === 0 ? 'CN' : `T${dayIdx + 1}`
 
-        const dayJournals = journals.filter(j => new Date(j.date).toDateString() === dStr)
-        if (dayJournals.length > 0) {
-          const avgScore = dayJournals.reduce((s, j) => s + (MOOD_SCORES[j.mood] || 4), 0) / dayJournals.length
-          data.push({ day: dayName, score: avgScore })
-        } else {
-          data.push({ day: dayName, score: 4.0 })
-        }
+      const dayJournals = journals.filter(j => new Date(j.date).toDateString() === dStr)
+      if (dayJournals.length > 0) {
+        const avgScore = dayJournals.reduce((s, j) => s + (MOOD_SCORES[j.mood] || 4), 0) / dayJournals.length
+        data.push({ day: dayName, score: avgScore })
+      } else {
+        data.push({ day: dayName, score: 0 })
       }
-      return data
     }
-
-    // Mock data nếu chưa có gì
-    return [
-      { day: 'T2', score: 6 }, { day: 'T3', score: 4 }, { day: 'T4', score: 5 },
-      { day: 'T5', score: 3 }, { day: 'T6', score: 4 }, { day: 'T7', score: 6 },
-      { day: 'CN', score: 7 },
-    ]
+    return data
   }
 
   const baseMoodData = getWeeklyMoodData()

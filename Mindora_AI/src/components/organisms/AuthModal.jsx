@@ -183,7 +183,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
 
               <div className="relative z-10 w-full h-full flex flex-col justify-between p-10 text-white select-none">
                 <div>
-                  <h3 className="font-display text-2xl font-bold mb-2 text-white">Mia Companion</h3>
+                  <h3 className="font-display text-2xl font-bold mb-2 text-white">Dora Companion</h3>
                   <p className="font-body text-xs text-white/70 max-w-[280px] leading-relaxed">
                     "Lắng nghe, thấu hiểu và cùng bạn vượt qua những khoảnh khắc căng thẳng nhất."
                   </p>
@@ -191,7 +191,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
 
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#C9A227] animate-ping" />
-                  <span className="font-ui text-[10px] text-white/50 uppercase tracking-widest">Dora-Unit 01</span>
+                  <span className="font-ui text-[10px] text-white/50 uppercase tracking-widest">Dora 001</span>
                 </div>
               </div>
             </div>

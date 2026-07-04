@@ -36,7 +36,7 @@ export default function HomePage() {
             variants={fadeUp}
             className="font-ui text-white/80 text-xs uppercase tracking-widest mb-6"
           >
-            AI Companion cho sức khỏe tâm thần
+            AI Companion cho sức khỏe tinh thần của bạn
           </motion.p>
 
           <motion.h1
@@ -57,8 +57,8 @@ export default function HomePage() {
             variants={fadeUp}
             className="font-body text-white/75 text-sm md:text-base leading-relaxed mb-10 max-w-md mx-auto"
           >
-            Lắng nghe, thấu hiểu và đồng hành cùng bạn vượt qua những khoảnh khắc khó khăn.
-            Mỗi ngày một chút, tốt hơn một chút.
+            Lắng nghe, thấu hiểu và đồng hành cùng bạn mỗi ngày.
+           
           </motion.p>
 
           <motion.div variants={fadeUp}>
@@ -96,11 +96,11 @@ export default function HomePage() {
 
             <h2 className="font-display text-3xl md:text-5xl text-text-main leading-snug mb-6">
               Dora không chỉ là một chatbot —{' '}
-              <span className="italic text-primary">cô ấy là người bạn lắng nghe bạn</span>
+              <span className="italic text-primary">cậu ấy là người bạn đồng hành lắng nghe bạn khi bạn cần</span>
             </h2>
 
             <p className="font-body text-text-sub text-base md:text-lg leading-relaxed mb-14 max-w-2xl mx-auto">
-              Được xây dựng dựa trên các nguyên lý tâm lý học tích cực và liệu pháp nhận thức hành vi (CBT),
+              Được xây dựng dựa trên các nguyên lý tâm lý học tích cực,
               Dora đồng hành cùng bạn trên hành trình chăm sóc sức khỏe tinh thần mỗi ngày -
               nhẹ nhàng, không phán xét, luôn sẵn sàng.
             </p>
@@ -337,7 +337,7 @@ export default function HomePage() {
           >
             <p className="font-ui text-text-sub text-xs uppercase tracking-widest mb-4">Luôn bên bạn</p>
             <h2 className="font-display text-3xl md:text-4xl text-text-main leading-tight mb-6">
-              Hãy tìm thấy bình tĩnh<br />của cùng Mindora
+              Hãy tìm thấy bình tĩnh<br/>của cùng Mindora
             </h2>
             <p className="font-body text-text-sub text-base leading-relaxed mb-8">
               Từ những cuộc trò chuyện nhỏ đến những khoảnh khắc khó khăn nhất —
@@ -420,7 +420,7 @@ export default function HomePage() {
               BẮT ĐẦU<br />HÀNH TRÌNH
             </h2>
             <p className="font-body text-bg/60 text-base leading-relaxed mb-8">
-              Bắt đầu chăm sóc sức khỏe tâm thần ngay hôm nay — miễn phí, không phán xét.
+              Bắt đầu chăm sóc sức khỏe tâm thần ngay hôm nay - miễn phí, không phán xét.
             </p>
             <button
               onClick={() => navigate('/chat')}
@@ -525,7 +525,7 @@ export default function HomePage() {
             ))}
           </div>
           <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <p className="font-ui text-bg/30 text-xs">© 2025 Mindora. Không thay thế chuyên gia tâm lý.</p>
+            <p className="font-ui text-bg/30 text-xs">© 2026 Mindora. Không thay thế chuyên gia tâm lý.</p>
             <p className="font-ui text-bg/30 text-xs">
               Đường dây hỗ trợ:{' '}
               <strong className="text-bg/50">1800 599 920</strong>

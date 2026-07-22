@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
-import { Menu, X, LogOut, ChevronDown, User as UserIcon } from 'lucide-react'
+import { Menu, X, LogOut, ChevronDown } from 'lucide-react'
 import Button from '../atoms/Button'
 import Avatar from '../atoms/Avatar'
 import AuthModal from './AuthModal'
@@ -72,13 +72,13 @@ export default function Navbar() {
         : 'sticky bg-bg/80 backdrop-blur-md border-b border-primary/20'
     )}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-24">
+        <div className="flex items-center justify-between h-16 md:h-24">
           {/* Logo */}
           <NavLink to="/" className={cn(
             'flex items-center gap-3 font-display text-xl font-semibold',
             isTransparent ? 'text-white' : 'text-text-main'
           )}>
-            <img src="/LogoDora.png" alt="Mindora" className="h-[110px] w-[110px] object-contain" />
+            <img src="/LogoDora.png" alt="Mindora" className="h-14 md:h-[110px] w-14 md:w-[110px] object-contain" />
             Mindora
           </NavLink>
 

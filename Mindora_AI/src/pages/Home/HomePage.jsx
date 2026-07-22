@@ -95,7 +95,7 @@ export default function HomePage() {
             </span>
 
             <h2 className="font-display text-3xl md:text-5xl text-text-main leading-snug mb-6">
-              Dora không chỉ là một chatbot —{' '}
+              Dora không chỉ là một chatbot -{' '}
               <span className="italic text-primary">cậu ấy là người bạn đồng hành lắng nghe bạn khi bạn cần</span>
             </h2>
 

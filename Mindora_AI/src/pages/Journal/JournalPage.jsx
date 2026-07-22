@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Edit3, X, Save, Tag as TagIcon, Trash2, Book } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import Button from '../../components/atoms/Button'
 import Tag from '../../components/atoms/Tag'
 import { MOODS, formatDate, cn } from '../../lib/utils'
@@ -79,10 +80,10 @@ function JournalCard({ entry, onEdit, onDelete }) {
   )
 }
 
-function WriteModal({ onClose, editEntry }) {
+function WriteModal({ onClose, editEntry, initialMood, initialText }) {
   const { addJournal, updateJournal, setTodayMood } = useAppStore()
-  const [mood, setMood] = useState(editEntry?.mood || '')
-  const [text, setText] = useState(editEntry?.text || '')
+  const [mood, setMood] = useState(editEntry?.mood || initialMood || '')
+  const [text, setText] = useState(editEntry?.text || initialText || '')
   const [tags, setTags] = useState(editEntry?.tags?.join(', ') || '')
   const [saving, setSaving] = useState(false)
 
@@ -209,6 +210,9 @@ export default function JournalPage() {
   const [showModal, setShowModal] = useState(false)
   const [editEntry, setEditEntry] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [prefill, setPrefill] = useState(null)
+  const location = useLocation()
+  const navigate = useNavigate()
 
   // Load journals từ backend khi mount
   useEffect(() => {
@@ -220,6 +224,18 @@ export default function JournalPage() {
     }
     load()
   }, [user])
+
+  // Đến từ nút "Ghi nhật ký" trong Chat với Dora — tự mở modal viết + gợi ý sẵn tâm trạng vừa
+  // phát hiện trong cuộc trò chuyện, thay vì bắt người dùng bấm thêm 1 lần nữa.
+  useEffect(() => {
+    if (location.state?.openWrite) {
+      setEditEntry(null)
+      setPrefill({ mood: location.state.mood || '', text: location.state.text || '' })
+      setShowModal(true)
+      // Xoá state trên URL để F5 hoặc quay lại trang không mở lại modal ngoài ý muốn.
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.state])
 
   const allEntries = [...journals].sort((a, b) => new Date(b.date) - new Date(a.date))
 
@@ -251,7 +267,7 @@ export default function JournalPage() {
         </div>
         <Button
           icon={<Plus size={16} />}
-          onClick={() => { setEditEntry(null); setShowModal(true) }}
+          onClick={() => { setEditEntry(null); setPrefill(null); setShowModal(true) }}
           className="py-2.5 text-sm"
         >
           Viết hôm nay
@@ -264,7 +280,7 @@ export default function JournalPage() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="card bg-gradient-to-r from-primary/10 via-accent/5 to-secondary/15 border border-[#E8E1CF] mb-8 cursor-pointer relative overflow-hidden"
-          onClick={() => { setEditEntry(null); setShowModal(true) }}
+          onClick={() => { setEditEntry(null); setPrefill(null); setShowModal(true) }}
         >
           {/* Subtle notebook pen design details on check-in banner */}
           <div className="absolute -right-8 -bottom-8 text-8xl opacity-15 rotate-12 select-none pointer-events-none">✍️</div>
@@ -276,7 +292,7 @@ export default function JournalPage() {
               <button
                 key={m.value}
                 className="text-3xl hover:scale-125 transition-transform duration-200 cursor-pointer filter drop-shadow-sm"
-                onClick={(e) => { e.stopPropagation(); setEditEntry(null); setShowModal(true) }}
+                onClick={(e) => { e.stopPropagation(); setEditEntry(null); setPrefill(null); setShowModal(true) }}
                 title={m.label}
               >
                 {m.emoji}
@@ -313,7 +329,7 @@ export default function JournalPage() {
               <p className="font-body text-xs text-text-sub mt-1.5 mb-5">Hãy bắt đầu lưu giữ cảm xúc của bạn từ hôm nay!</p>
               <Button
                 icon={<Plus size={14} />}
-                onClick={() => { setEditEntry(null); setShowModal(true) }}
+                onClick={() => { setEditEntry(null); setPrefill(null); setShowModal(true) }}
                 className="py-2.5 text-sm mx-auto"
               >
                 Viết nhật ký ngay
@@ -327,8 +343,10 @@ export default function JournalPage() {
       <AnimatePresence>
         {showModal && (
           <WriteModal
-            onClose={() => setShowModal(false)}
+            onClose={() => { setShowModal(false); setPrefill(null) }}
             editEntry={editEntry}
+            initialMood={prefill?.mood}
+            initialText={prefill?.text}
           />
         )}
       </AnimatePresence>

@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import {
   ComposedChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Info, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
-import { MOODS, cn } from '../../lib/utils'
+import { MOODS } from '../../lib/utils'
 
 const MOOD_SCORES = {
   loved: 7,
@@ -29,20 +30,103 @@ const CustomTooltip = ({ active, payload, label }) => {
   )
 }
 
+// Popup ăn mừng khi user lên Level mới hoặc mở Achievement mới — tạo cảm giác "phần thưởng" rõ
+// ràng ngay lúc mở Dashboard, thay vì chỉ là con số tĩnh nằm trong card.
+const CelebrationModal = ({ celebration, onClose }) => {
+  if (!celebration) return null
+  const { leveledUp, newLevel, achievement } = celebration
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-w-sm w-full bg-white rounded-3xl p-7 text-center shadow-2xl animate-[bounce_0.6s_ease-out]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-1 rounded-full hover:bg-bg text-text-sub hover:text-text-main cursor-pointer"
+        >
+          <X size={16} />
+        </button>
+
+        <p className="text-5xl mb-3">{achievement ? '🏆' : '🎉'}</p>
+        <h3 className="font-display text-xl text-text-main font-bold mb-2">
+          {achievement && leveledUp ? 'Một ngày tuyệt vời!' : achievement ? 'Mở khóa huy hiệu mới!' : 'Lên cấp rồi!'}
+        </h3>
+
+        <div className="flex flex-col gap-3 mt-4">
+          {leveledUp && (
+            <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4">
+              <p className="font-body text-sm text-text-main">⭐ Bạn đã đạt <span className="font-bold text-primary">Level {newLevel}</span></p>
+            </div>
+          )}
+          {achievement && (
+            <div className="bg-[#FFF4D6] border border-[#F0E2B0] rounded-2xl p-4 text-left">
+              <p className="font-body font-semibold text-sm text-text-main">🏅 {achievement.title}</p>
+              <p className="font-body text-xs text-text-sub mt-1 leading-relaxed">{achievement.description}</p>
+            </div>
+          )}
+        </div>
+
+        <button
+          onClick={onClose}
+          className="mt-6 px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-full font-ui text-sm font-semibold transition-colors cursor-pointer"
+        >
+          Tuyệt vời!
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function DashboardPage() {
-  const { journals, loadJournals, moodLogs, loadMoodWeek, user } = useAppStore()
+  const {
+    journals, loadJournals, moodLogs, loadMoodWeek,
+    dailyInsight, loadDailyInsight,
+    achievements, loadAchievements,
+    weeklySummary, loadWeeklySummary,
+    moodHistory, loadMoodHistory,
+    user,
+  } = useAppStore()
   const [loading, setLoading] = useState(true)
+  const [showAllAchievements, setShowAllAchievements] = useState(false)
+  const [showAllMoodHistory, setShowAllMoodHistory] = useState(false)
+  const [celebration, setCelebration] = useState(null)
 
   // Load data từ backend khi mount
   useEffect(() => {
     if (!user) return
     const load = async () => {
       setLoading(true)
-      await Promise.all([loadJournals(), loadMoodWeek()])
+      await Promise.all([loadJournals(), loadMoodWeek(), loadDailyInsight(), loadAchievements(), loadWeeklySummary(), loadMoodHistory(30)])
       setLoading(false)
     }
     load()
   }, [user])
+
+  // Popup ăn mừng khi lên Level mới hoặc mở Achievement mới trong hôm nay — chỉ hiện 1 lần/ngày
+  // (đánh dấu bằng localStorage theo user + ngày, tránh làm phiền khi mở lại Dashboard nhiều lần).
+  useEffect(() => {
+    if (!dailyInsight?.available || !user) return
+    const seenKey = `mindora_celebration_seen_${user.id}_${dailyInsight.date}`
+    if (localStorage.getItem(seenKey)) return
+
+    const xp = dailyInsight.xpInfo
+    const levelBefore = xp ? Math.floor(Math.max(0, xp.totalXp - xp.xpEarnedToday) / 100) + 1 : 1
+    const leveledUp = xp && xp.level > levelBefore
+    const achievementUnlocked = dailyInsight.achievement?.unlockedToday
+
+    if (leveledUp || achievementUnlocked) {
+      setCelebration({
+        leveledUp,
+        newLevel: xp?.level,
+        achievement: achievementUnlocked ? dailyInsight.achievement : null,
+      })
+      localStorage.setItem(seenKey, '1')
+    }
+  }, [dailyInsight, user])
 
   // Tính stats từ mood logs thật (từ backend)
   const totalMoodEntries = moodLogs.length
@@ -132,6 +216,8 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-bg py-10 px-4 md:px-8">
+      <CelebrationModal celebration={celebration} onClose={() => setCelebration(null)} />
+
       {/* Outer elegant picture frame wrapper mimicking Insight.jpg */}
       <div className="max-w-6xl mx-auto border-[16px] border-[#E4D9B8]/30 rounded-[2.5rem] bg-[#FBF7ED] shadow-soft p-6 md:p-8">
         
@@ -206,6 +292,104 @@ export default function DashboardPage() {
                   <p className="font-body text-xs text-text-sub">Phân tích biểu đồ và xu hướng cảm xúc</p>
                 </div>
               </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {dailyInsight?.dailyTitle && (
+                  <span className="font-ui text-xs font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5">
+                    ✨ {dailyInsight.dailyTitle}
+                  </span>
+                )}
+                <Link
+                  to="/dashboard/guide"
+                  title="Giải thích Level, Streak, Cây cảm xúc..."
+                  className="p-2 rounded-full bg-white hover:bg-primary-light border border-[#E8E1CF] text-text-sub hover:text-primary transition-colors cursor-pointer"
+                >
+                  <Info size={16} />
+                </Link>
+              </div>
+            </div>
+
+            {/* 💡 AI INSIGHT HÔM NAY — điểm nhấn chính, đặt ngay dưới tiêu đề Wellness Insight */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-primary to-[#123152] rounded-3xl p-6 shadow-md">
+              <div className="absolute -right-6 -top-6 text-8xl opacity-10 select-none">💡</div>
+              <h3 className="font-display text-lg text-white font-semibold mb-2 relative">💡 AI Insight hôm nay</h3>
+
+              {dailyInsight?.available ? (
+                <>
+                  <p className="font-body text-sm text-white/95 leading-relaxed relative">{dailyInsight.insight}</p>
+                  {dailyInsight.nextTip && (
+                    <p className="font-ui text-xs text-white/75 mt-3 relative">🌤️ Gợi ý cho ngày mai: {dailyInsight.nextTip}</p>
+                  )}
+                </>
+              ) : (
+                <div className="relative">
+                  <p className="font-body text-sm text-white/85 leading-relaxed">
+                    Trò chuyện cùng Dora hôm nay để nhận nhận xét riêng dành cho bạn — AI sẽ đọc lại đoạn
+                    chat và cho bạn biết hôm nay có gì đặc biệt. 💬
+                  </p>
+                  <Link
+                    to="/chat"
+                    className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 rounded-full bg-white text-primary font-ui text-xs font-semibold hover:bg-white/90 transition-colors cursor-pointer"
+                  >
+                    💬 Trò chuyện với Dora ngay
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* GAMIFICATION ROW: XP, Streak/Pet, Cây cảm xúc, Achievement */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* ⭐ XP / Level */}
+              <div className="bg-white border border-[#E8E1CF] rounded-2xl p-4 shadow-sm flex flex-col gap-2">
+                <span className="font-ui text-[11px] text-text-sub uppercase tracking-wider">⭐ Level {dailyInsight?.xpInfo?.level ?? 1}</span>
+                <div className="w-full h-2 rounded-full bg-[#F0EBDC] overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all"
+                    style={{
+                      width: `${Math.min(100, Math.round((100 * (dailyInsight?.xpInfo?.xpIntoLevel ?? 0)) / (dailyInsight?.xpInfo?.xpForNextLevel || 100)))}%`
+                    }}
+                  />
+                </div>
+                <span className="font-body text-xs text-text-sub">
+                  {dailyInsight?.xpInfo?.xpEarnedToday ? `+${dailyInsight.xpInfo.xpEarnedToday} XP hôm nay` : `${dailyInsight?.xpInfo?.totalXp ?? 0} XP tích lũy`}
+                </span>
+              </div>
+
+              {/* 🔥 Streak + 🐱 Pet */}
+              <div className="bg-white border border-[#E8E1CF] rounded-2xl p-4 shadow-sm flex flex-col gap-2">
+                <span className="font-ui text-[11px] text-text-sub uppercase tracking-wider">
+                  🔥 {dailyInsight?.streak?.title || 'Chuỗi đồng hành'}
+                </span>
+                <span className="font-display text-2xl text-primary font-bold">{dailyInsight?.streak?.currentStreak ?? 0} ngày</span>
+                <span className="font-body text-xs text-text-sub leading-snug">
+                  🐱 {dailyInsight?.petMessage || 'Momo đang chờ nghe bạn kể chuyện hôm nay.'}
+                </span>
+              </div>
+
+              {/* 🌱 Cây cảm xúc */}
+              <div className="bg-white border border-[#E8E1CF] rounded-2xl p-4 shadow-sm flex flex-col gap-2">
+                <span className="font-ui text-[11px] text-text-sub uppercase tracking-wider">🌱 Cây cảm xúc</span>
+                <span className="font-display text-2xl text-secondary font-bold">
+                  {dailyInsight?.tree?.percent ?? 0}%
+                  {dailyInsight?.tree?.deltaToday ? (
+                    <span className="font-ui text-xs text-secondary/70 font-normal ml-1">+{dailyInsight.tree.deltaToday}% hôm nay</span>
+                  ) : null}
+                </span>
+                <span className="font-body text-xs text-text-sub">{dailyInsight?.tree?.treeCount ?? 0} cây đã trưởng thành</span>
+              </div>
+
+              {/* 🏆 Achievement */}
+              <div className="bg-white border border-[#E8E1CF] rounded-2xl p-4 shadow-sm flex flex-col gap-2">
+                <span className="font-ui text-[11px] text-text-sub uppercase tracking-wider">🏆 Achievement</span>
+                {dailyInsight?.achievement?.unlockedToday ? (
+                  <>
+                    <span className="font-body font-semibold text-xs text-text-main">🏅 {dailyInsight.achievement.title}</span>
+                    <span className="font-body text-[11px] text-text-sub leading-snug">{dailyInsight.achievement.description}</span>
+                  </>
+                ) : (
+                  <span className="font-body text-xs text-text-sub leading-snug">Chưa có thành tựu mới hôm nay — mỗi bước cố gắng đều được ghi nhận.</span>
+                )}
+              </div>
             </div>
 
             {/* STACKED AREA CHART WAVES */}
@@ -271,6 +455,129 @@ export default function DashboardPage() {
                 </ResponsiveContainer>
               </div>
               <p className="text-center font-ui text-[11px] text-text-sub mt-4">7 days analytics</p>
+            </div>
+
+            {/* 📅 LỊCH SỬ MOOD — danh sách chi tiết từng lần check-in (30 ngày gần nhất), khác với
+                biểu đồ xu hướng ở trên vốn chỉ tóm tắt 7 ngày dưới dạng đường/vùng. */}
+            <div className="bg-white border border-[#E8E1CF] rounded-3xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="font-display text-lg text-text-main font-medium">📅 Lịch sử mood</h3>
+                {moodHistory.length > 6 && (
+                  <button
+                    onClick={() => setShowAllMoodHistory((v) => !v)}
+                    className="font-ui text-[11px] text-primary hover:underline cursor-pointer shrink-0"
+                  >
+                    {showAllMoodHistory ? 'Thu gọn' : `Xem tất cả (${moodHistory.length})`}
+                  </button>
+                )}
+              </div>
+              <p className="font-ui text-[11px] text-text-sub mb-4">30 ngày gần nhất — từng lần bạn ghi nhận cảm xúc.</p>
+
+              {moodHistory.length > 0 ? (
+                <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+                  {[...moodHistory]
+                    .sort((a, b) => new Date(b.logDate) - new Date(a.logDate))
+                    .slice(0, showAllMoodHistory ? moodHistory.length : 6)
+                    .map((m) => (
+                      <div key={m.id} className="flex items-center gap-3 bg-bg/50 border border-[#F0EBDC] rounded-2xl p-3">
+                        <span className="text-xl shrink-0">{m.moodEmoji || '😌'}</span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-body font-semibold text-xs text-text-main">{m.moodScore}/7</span>
+                            <span className="font-ui text-[10px] text-text-sub shrink-0">
+                              {new Date(m.logDate).toLocaleDateString('vi-VN')}
+                            </span>
+                          </div>
+                          {m.note && (
+                            <p className="font-body text-[11px] text-text-sub leading-relaxed truncate mt-0.5">{m.note}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-2xl mb-1">📅</p>
+                  <p className="font-ui text-xs text-text-sub">Chưa có lịch sử mood — hãy check-in cảm xúc để bắt đầu ghi lại.</p>
+                </div>
+              )}
+            </div>
+
+            {/* TỔNG KẾT TUẦN + BỘ SƯU TẬP HUY HIỆU */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 📅 Tổng kết tuần */}
+              <div className="bg-white border border-[#E8E1CF] rounded-3xl p-6 shadow-sm">
+                <h4 className="font-display text-base text-text-main font-semibold mb-1">📅 Tổng kết tuần</h4>
+                <p className="font-body text-xs text-text-sub leading-relaxed mb-4">7 ngày gần nhất — nhìn lại chặng đường thay vì chỉ hôm nay.</p>
+
+                {weeklySummary && weeklySummary.activeDays > 0 ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-bg/50 rounded-2xl p-3">
+                      <span className="font-display text-xl text-primary font-bold block">{weeklySummary.totalXpEarned}</span>
+                      <span className="font-ui text-[10px] text-text-sub uppercase tracking-wider">XP kiếm được</span>
+                    </div>
+                    <div className="bg-bg/50 rounded-2xl p-3">
+                      <span className="font-display text-xl text-secondary font-bold block">{weeklySummary.activeDays}/7</span>
+                      <span className="font-ui text-[10px] text-text-sub uppercase tracking-wider">Ngày hoạt động</span>
+                    </div>
+                    <div className="bg-bg/50 rounded-2xl p-3">
+                      <span className="font-display text-xl text-text-main font-bold block">+{weeklySummary.treeGrowthTotal}%</span>
+                      <span className="font-ui text-[10px] text-text-sub uppercase tracking-wider">Cây cảm xúc</span>
+                    </div>
+                    <div className="bg-bg/50 rounded-2xl p-3">
+                      <span className="font-display text-xl text-primary font-bold block">{weeklySummary.achievementsUnlocked}</span>
+                      <span className="font-ui text-[10px] text-text-sub uppercase tracking-wider">Huy hiệu mới</span>
+                    </div>
+                    {weeklySummary.bestDayTitle && (
+                      <div className="col-span-2 bg-primary/5 border border-primary/10 rounded-2xl p-3">
+                        <span className="font-ui text-[10px] text-text-sub uppercase tracking-wider block mb-0.5">Ngày nổi bật nhất</span>
+                        <span className="font-body font-semibold text-xs text-text-main">✨ {weeklySummary.bestDayTitle}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <p className="text-2xl mb-1">📅</p>
+                    <p className="font-ui text-xs text-text-sub">Chưa có dữ liệu tuần này — trò chuyện cùng Dora để bắt đầu nhé.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* 🏅 Bộ sưu tập huy hiệu — chỉ tính trong tháng hiện tại, sang tháng mới sẽ reset lại */}
+              <div className="bg-white border border-[#E8E1CF] rounded-3xl p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="font-display text-base text-text-main font-semibold">🏅 Huy hiệu tháng này</h4>
+                  {achievements.length > 4 && (
+                    <button
+                      onClick={() => setShowAllAchievements((v) => !v)}
+                      className="font-ui text-[11px] text-primary hover:underline cursor-pointer shrink-0"
+                    >
+                      {showAllAchievements ? 'Thu gọn' : `Xem tất cả (${achievements.length})`}
+                    </button>
+                  )}
+                </div>
+                <p className="font-body text-xs text-text-sub leading-relaxed mb-4">Những cột mốc bạn vượt qua trong tháng — sang tháng mới sẽ bắt đầu lại từ đầu.</p>
+
+                {achievements.length > 0 ? (
+                  <div className="flex flex-col gap-2.5 max-h-64 overflow-y-auto pr-1">
+                    {(showAllAchievements ? achievements : achievements.slice(0, 4)).map((a, idx) => (
+                      <div key={`${a.date}-${idx}`} className="flex items-start gap-2.5 bg-[#FFF4D6]/60 border border-[#F0E2B0] rounded-2xl p-3">
+                        <span className="text-lg shrink-0">🏅</span>
+                        <div className="min-w-0">
+                          <p className="font-body font-semibold text-xs text-text-main truncate">{a.title}</p>
+                          <p className="font-body text-[11px] text-text-sub leading-relaxed">{a.description}</p>
+                          <p className="font-ui text-[10px] text-text-sub/70 mt-0.5">{new Date(a.date).toLocaleDateString('vi-VN')}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <p className="text-2xl mb-1">🏅</p>
+                    <p className="font-ui text-xs text-text-sub">Chưa có huy hiệu nào — hãy tiếp tục trò chuyện mỗi ngày!</p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* THREE LOWER WIDGET CARDS */}

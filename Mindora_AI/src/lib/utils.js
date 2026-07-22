@@ -35,6 +35,17 @@ export const QUICK_REPLIES = [
   { label: 'Vui lắm 🥰',     value: 'Hôm nay mình vui lắm!' },
 ]
 
+// Nhận diện link YouTube (watch?v=, youtu.be/, /embed/) và trả về video ID (11 ký tự),
+// hoặc null nếu không phải link YouTube — dùng để phát MV/audio thật ngay trong app,
+// miễn phí và không cần đăng nhập, thay vì phải mở tab ngoài.
+export function extractYoutubeId(url) {
+  if (!url || typeof url !== 'string') return null;
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+}
+
 export function parseSpotifyUrl(url) {
   if (!url || typeof url !== 'string') return null;
   const cleanUrl = url.trim();

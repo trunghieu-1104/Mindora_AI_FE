@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Mail, Lock, User, AlertCircle, Sparkles } from 'lucide-react'
+import { X, Mail, Lock, User, AlertCircle } from 'lucide-react'
 import Button from '../atoms/Button'
 import { useAppStore } from '../../store/useAppStore'
-import { cn } from '../../lib/utils'
+
 
 export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
   const { login, signup } = useAppStore()
@@ -44,14 +44,14 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4 bg-text-main/45 backdrop-blur-sm"
+          className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4 bg-text-main/45 backdrop-blur-sm overflow-y-auto"
           onClick={(e) => e.target === e.currentTarget && onClose()}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-white rounded-4xl shadow-soft w-full max-w-4xl overflow-hidden relative border border-primary/20 flex flex-col md:flex-row min-h-[500px]"
+            className="bg-white rounded-3xl md:rounded-4xl shadow-soft w-full max-w-md md:max-w-4xl overflow-hidden relative border border-primary/20 flex flex-col md:flex-row md:min-h-[500px] max-h-[90vh] md:max-h-none overflow-y-auto md:overflow-visible my-auto"
           >
             {/* Close button */}
             <button

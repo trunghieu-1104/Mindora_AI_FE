@@ -7,6 +7,7 @@ import ChatPage from './pages/Chat/ChatPage'
 import JournalPage from './pages/Journal/JournalPage'
 import ExplorePage from './pages/Explore/ExplorePage'
 import DashboardPage from './pages/Dashboard/DashboardPage'
+import GamificationGuidePage from './pages/Dashboard/GamificationGuidePage'
 import PrivateRoute from './components/PrivateRoute'
 import { useAppStore } from './store/useAppStore'
 
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/journal"   element={<PrivateRoute><JournalPage /></PrivateRoute>} />
             <Route path="/explore"   element={<PrivateRoute><ExplorePage /></PrivateRoute>} />
             <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+            <Route path="/dashboard/guide" element={<PrivateRoute><GamificationGuidePage /></PrivateRoute>} />
           </Routes>
         </main>
         <SpotifyPlayer />

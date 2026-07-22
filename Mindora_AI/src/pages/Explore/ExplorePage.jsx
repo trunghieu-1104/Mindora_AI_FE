@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Play, Pause, Music, X, Check, AlertCircle } from 'lucide-react'
-import { cn, parseSpotifyUrl } from '../../lib/utils'
+import { Play, Pause } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { cn } from '../../lib/utils'
 import { useAppStore } from '../../store/useAppStore'
+import { api } from '../../lib/api'
 
+// Các bộ lọc tâm trạng (Giữ lại vì đây là cấu hình UI, không phải dữ liệu động)
 const MOOD_FILTERS = [
   { emoji: '😊', label: 'Vui vẻ',    value: 'happy' },
   { emoji: '😔', label: 'Buồn',       value: 'sad' },
@@ -12,91 +15,53 @@ const MOOD_FILTERS = [
   { emoji: '😴', label: 'Ngủ ngon',  value: 'sleep' },
 ]
 
-const MUSIC = [
-  { 
-    title: 'Rainy Café Lofi (Radio)', 
-    artist: 'Lofi Girl / Lofi Beats', 
-    mood: 'calm', 
-    color: 'bg-secondary/20 border border-secondary/10', 
-    spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn',
-    emoji: '🎧'
-  },
-  { 
-    title: 'Acoustic Chill', 
-    artist: 'Spotify Playlist', 
-    mood: 'calm', 
-    color: 'bg-primary/20 border border-primary/10', 
-    spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO',
-    emoji: '🎸'
-  },
-  { 
-    title: 'Happy Beats', 
-    artist: 'Spotify Playlist', 
-    mood: 'happy', 
-    color: 'bg-secondary/10 border border-secondary/5', 
-    spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0',
-    emoji: '✨'
-  },
-  { 
-    title: 'Death Bed (Lofi)', 
-    artist: 'Powfu', 
-    mood: 'sad', 
-    color: 'bg-secondary/20 border border-secondary/10', 
-    spotifyUrl: 'https://open.spotify.com/track/7eJMfftS33KTjuF7lTsMCx',
-    emoji: '☕'
-  },
-  { 
-    title: 'Wake Me Up', 
-    artist: 'Avicii', 
-    mood: 'energy', 
-    color: 'bg-warning/20 border border-warning/10', 
-    spotifyUrl: 'https://open.spotify.com/track/0nrRP2bk19rLc0orkWPQk2',
-    emoji: '☀️'
-  },
-  { 
-    title: 'Levels', 
-    artist: 'Avicii', 
-    mood: 'energy', 
-    color: 'bg-accent/30 border border-accent/20', 
-    spotifyUrl: 'https://open.spotify.com/track/5UqCQaDshqbIk3pkhy4Pjg',
-    emoji: '⚡'
-  },
-  { 
-    title: 'EDM Chill', 
-    artist: 'Spotify Playlist', 
-    mood: 'energy', 
-    color: 'bg-secondary/20 border border-secondary/10', 
-    spotifyUrl: 'https://open.spotify.com/playlist/7JFgMB1L1pZfHQndfJVLrb',
-    emoji: '🔥'
-  },
-  { 
-    title: 'Clair de Lune', 
-    artist: 'Claude Debussy', 
-    mood: 'sleep', 
-    color: 'bg-primary/20 border border-primary/10', 
-    spotifyUrl: 'https://open.spotify.com/track/6hk5bPV8DfqIPjYXLiBl6b',
-    emoji: '🌙'
-  },
-  { 
-    title: 'Weightless (Ambient)', 
-    artist: 'Marconi Union', 
-    mood: 'sleep', 
-    color: 'bg-secondary/20 border border-secondary/10', 
-    spotifyUrl: 'https://open.spotify.com/track/0qS5x1vaiEWGwImxI3LPQp',
-    emoji: '🌊'
-  },
-  { 
-    title: 'Sleep Lofi', 
-    artist: 'Spotify Playlist', 
-    mood: 'sleep', 
-    color: 'bg-accent/20 border border-accent/10', 
-    spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS',
-    emoji: '💤'
+const MOOD_EMOJI = { happy: '😊', sad: '😔', calm: '😌', energy: '💪', sleep: '😴' }
+const MOOD_COLOR = {
+  happy: 'bg-yellow-100', sad: 'bg-indigo-100', calm: 'bg-emerald-100',
+  energy: 'bg-orange-100', sleep: 'bg-blue-100',
+}
+
+function getCoverUrl(item) {
+  if (!item) return null
+  if (item.thumbnailUrl && item.thumbnailUrl.startsWith('/')) {
+    return item.thumbnailUrl
   }
-]
+  if (item.youtubeId) {
+    return `https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg`
+  }
+  return item.thumbnailUrl
+}
 
+// Chuẩn hoá chuỗi để search tiếng Việt:
+// "Thư Giãn" → "thu gian" | "VSTN" → "vstn" | "  hello  " → "hello"
+// Cho phép gõ không dấu, sai hoa/thường, thừa khoảng trắng vẫn tìm được.
+function normalize(str) {
+  if (!str) return ''
+  return str
+    .normalize('NFD')                        // tách ký tự + dấu (e.g. ệ → e + combining)
+    .replace(/[\u0300-\u036f]/g, '')         // xoá toàn bộ dấu combining
+    .replace(/[đĐ]/g, 'd')                   // đ/Đ không có trong NFD, xử lý riêng
+    .toLowerCase()
+    .replace(/\s+/g, ' ')                    // collapse nhiều khoảng trắng
+    .trim()
+}
 
+// Kiểm tra query có khớp với target không (từng từ trong query đều phải xuất hiện)
+function matchSearch(target, query) {
+  if (!query.trim()) return true
+  const nTarget = normalize(target)
+  const words = normalize(query).split(' ').filter(Boolean)
+  return words.every((w) => nTarget.includes(w))
+}
 
+// Title trong content_library có dạng "Tên bài — Nghệ sĩ" — tách ra để hiển thị đẹp hơn.
+function splitTitleArtist(rawTitle) {
+  const parts = rawTitle.split('—')
+  if (parts.length >= 2) {
+    return { title: parts[0].trim(), artist: parts.slice(1).join('—').trim() }
+  }
+  return { title: rawTitle, artist: 'Nhạc Việt' }
+}
 
 function BreathingExercise() {
   const [phase, setPhase] = useState('idle')
@@ -187,40 +152,118 @@ function BreathingExercise() {
   )
 }
 
-export default function ExplorePage() {
-  const [activeMood, setActiveMood] = useState('calm')
-  const [activeTab, setActiveTab] = useState('music')
+// Emoji và màu nền cho từng mood — dùng cho cả music lẫn podcast
+const PODCAST_MOOD_EMOJI = { happy: '😄', sad: '🥺', calm: '🍃', energy: '⚡', sleep: '🌙' }
+const PODCAST_MOOD_COLOR = {
+  happy: 'bg-yellow-50', sad: 'bg-indigo-50', calm: 'bg-emerald-50',
+  energy: 'bg-orange-50', sleep: 'bg-blue-50',
+}
+
+// Nhận dữ liệu thật thông qua props (musicList); podcast tự fetch từ API.
+export default function ExplorePage({ musicList = [], podcastList = [] }) {
+  const [searchParams] = useSearchParams()
+  const [activeMood, setActiveMood] = useState(() => searchParams.get('mood') || 'all')
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'music')
+  const [musicSearch, setMusicSearch] = useState('')
+  const [podcastSearch, setPodcastSearch] = useState('')
+  const [podcastMoodFilter, setPodcastMoodFilter] = useState(() => searchParams.get('mood') || 'all')
+
   const playingItem = useAppStore((s) => s.playingItem)
   const setPlayingItem = useAppStore((s) => s.setPlayingItem)
   const setIsMinimized = useAppStore((s) => s.setIsMinimized)
-  const [customUrl, setCustomUrl] = useState('')
-  const [errorMsg, setErrorMsg] = useState('')
-  const [successMsg, setSuccessMsg] = useState(false)
 
-  const filtered = MUSIC.filter(m => m.mood === activeMood)
-
-  const handlePlayCustom = (e) => {
-    e.preventDefault()
-    const parsed = parseSpotifyUrl(customUrl)
-    if (parsed) {
-      const typeLabel = parsed.type === 'track' ? 'Bài hát' : parsed.type === 'playlist' ? 'Playlist' : parsed.type === 'album' ? 'Album' : 'Nội dung'
-      const fakeSongItem = {
-        title: `${typeLabel} tùy chọn`,
-        artist: 'Nhạc cá nhân của bạn',
-        spotifyUrl: customUrl,
-        emoji: parsed.type === 'playlist' ? '✨' : '🎵'
-      }
-      setPlayingItem(fakeSongItem)
-      setIsMinimized(false)
-      setErrorMsg('')
-      setSuccessMsg(true)
-      setTimeout(() => setSuccessMsg(false), 2000)
-    } else {
-      setErrorMsg('Đường dẫn không hợp lệ! Vui lòng dán đúng link bài hát/playlist từ Spotify.')
+  // Đến từ Chat với Dora (vd "Xem thêm nhạc cho tâm trạng này" hoặc "Thử bài tập thở") —
+  // đọc lại tab/mood mỗi khi query string đổi (không chỉ lúc mount), để bấm link nhiều lần từ
+  // Chat vẫn cập nhật đúng filter thay vì bị kẹt ở lần đầu.
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    const mood = searchParams.get('mood')
+    if (tab && ['music', 'breathing', 'podcast'].includes(tab)) setActiveTab(tab)
+    if (mood) {
+      setActiveMood(mood)
+      setPodcastMoodFilter(mood)
     }
-  }
+  }, [searchParams])
+  
+  // Fetch toàn bộ nhạc 1 lần (không filter mood) — để search được cross-mood.
+  // Mood filter được xử lý client-side: khi search → tìm tất cả; không search → lọc theo mood.
+  const [fetchedMusic, setFetchedMusic] = useState([])
+  const [loadingMusic, setLoadingMusic] = useState(false)
 
+  useEffect(() => {
+    if (activeTab !== 'music' || musicList.length > 0) return
+    let cancelled = false
+    setLoadingMusic(true)
+    api.get('/contents?contentType=music&size=200')
+      .then((res) => {
+        if (cancelled) return
+        const mapped = (res.content || [])
+          .filter((c) => c.youtubeId)
+          .map((c) => {
+            const { title, artist } = splitTitleArtist(c.title)
+            return {
+              id: c.id,
+              title,
+              artist,
+              mood: c.moodTag,
+              youtubeId: c.youtubeId,
+              emoji: MOOD_EMOJI[c.moodTag] || '🎵',
+              color: MOOD_COLOR[c.moodTag] || 'bg-primary/10',
+              thumbnailUrl: c.thumbnailUrl || null,
+            }
+          })
+        setFetchedMusic(mapped)
+      })
+      .catch(() => setFetchedMusic([]))
+      .finally(() => !cancelled && setLoadingMusic(false))
+    return () => { cancelled = true }
+  }, [activeTab, musicList.length])  // không phụ thuộc activeMood nữa
 
+  // ---------- Podcast: tự fetch từ API khi tab podcast active ----------
+  const [fetchedPodcasts, setFetchedPodcasts] = useState([])
+  const [loadingPodcasts, setLoadingPodcasts] = useState(false)
+
+  useEffect(() => {
+    // Dùng prop nếu có (tương thích ngược), không thì tự fetch
+    if (activeTab !== 'podcast' || podcastList.length > 0) return
+    let cancelled = false
+    setLoadingPodcasts(true)
+    api.get('/contents?contentType=podcast&size=20')
+      .then((res) => {
+        if (cancelled) return
+        const mapped = (res.content || []).map((c) => ({
+          id: c.id,
+          title: c.title,
+          ep: c.description || '',
+          youtubeId: c.youtubeId,
+          mood: c.moodTag,
+          duration: c.durationMinutes,
+          emoji: PODCAST_MOOD_EMOJI[c.moodTag] || '🎙️',
+          color: PODCAST_MOOD_COLOR[c.moodTag] || 'bg-primary/10',
+          thumbnailUrl: c.thumbnailUrl || null,
+        }))
+        setFetchedPodcasts(mapped)
+      })
+      .catch(() => setFetchedPodcasts([]))
+      .finally(() => !cancelled && setLoadingPodcasts(false))
+    return () => { cancelled = true }
+  }, [activeTab, podcastList.length])
+
+  const sourceMusicList = musicList.length > 0 ? musicList : fetchedMusic
+  const filtered = sourceMusicList.filter((m) => {
+    const hit = matchSearch(`${m.title} ${m.artist || ''}`, musicSearch)
+    // 'all' hoặc đang search → không filter mood
+    if (activeMood === 'all' || musicSearch.trim()) return hit
+    return m.mood === activeMood && hit
+  })
+
+  // Lọc podcast: mood + search chuẩn hoá tiếng Việt
+  const allPodcasts = podcastList.length > 0 ? podcastList : fetchedPodcasts
+  const filteredPodcasts = allPodcasts.filter((p) => {
+    const hit = matchSearch(`${p.title} ${p.ep || ''}`, podcastSearch)
+    const matchMood = podcastMoodFilter === 'all' || p.mood === podcastMoodFilter
+    return hit && matchMood
+  })
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 relative">
@@ -253,65 +296,39 @@ export default function ExplorePage() {
 
       {activeTab === 'music' && (
         <div className="animate-fade-in">
-          {/* Custom Spotify URL Input */}
-          <div className="bg-white/70 backdrop-blur-md rounded-3xl p-6 shadow-card mb-8 border border-primary/10">
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary-dark shrink-0">
-                <Music size={16} />
-              </div>
-              <div>
-                <h3 className="font-display font-semibold text-lg text-text-main">Tự phát nhạc của riêng bạn</h3>
-                <p className="font-body text-xs text-text-sub">Dán link Bài hát, Playlist, Album từ Spotify để thưởng thức ngay</p>
-              </div>
-            </div>
-            
-            <form onSubmit={handlePlayCustom} className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <input
-                  type="text"
-                  placeholder="Ví dụ: https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO"
-                  value={customUrl}
-                  onChange={(e) => {
-                    setCustomUrl(e.target.value)
-                    if (errorMsg) setErrorMsg('')
-                  }}
-                  className="input-field pr-10 pl-4 py-3 bg-white"
-                />
-                {customUrl && (
-                  <button
-                    type="button"
-                    onClick={() => setCustomUrl('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-sub hover:text-text-main transition-colors cursor-pointer"
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
-              
+
+          {/* Search box */}
+          <div className="relative mb-4">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-sub pointer-events-none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </span>
+            <input
+              type="text"
+              placeholder="Tìm bài hát hoặc nghệ sĩ..."
+              value={musicSearch}
+              onChange={(e) => setMusicSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-primary/20 bg-white font-ui text-sm text-text-main placeholder:text-text-sub/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+            />
+            {musicSearch && (
               <button
-                type="submit"
-                disabled={!customUrl}
-                className={cn(
-                  "btn-primary py-3 px-6 sm:w-auto w-full flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap",
-                  !customUrl && "opacity-50 cursor-not-allowed hover:bg-primary"
-                )}
+                onClick={() => setMusicSearch('')}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-sub hover:text-text-main transition-colors cursor-pointer"
               >
-                {successMsg ? <Check size={16} className="animate-scale-in" /> : <Play size={16} />}
-                {successMsg ? 'Đã tải!' : 'Phát nhạc'}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6 6 18M6 6l12 12"/>
+                </svg>
               </button>
-            </form>
-            
-            {errorMsg && (
-              <div className="mt-2.5 flex items-center gap-2 text-danger text-xs font-ui animate-fade-up">
-                <AlertCircle size={14} />
-                <span>{errorMsg}</span>
-              </div>
             )}
           </div>
 
           {/* Mood filter */}
-          <div className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-none">
-            {MOOD_FILTERS.map(f => (
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none">
+            {[
+              { emoji: '🎶', label: 'Tất cả', value: 'all' },
+              ...MOOD_FILTERS,
+            ].map(f => (
               <button
                 key={f.value}
                 onClick={() => setActiveMood(f.value)}
@@ -327,12 +344,33 @@ export default function ExplorePage() {
             ))}
           </div>
 
+          {loadingMusic && (
+            <p className="font-ui text-sm text-text-sub mb-4">Đang tải nhạc...</p>
+          )}
+
+          {!loadingMusic && sourceMusicList.length > 0 && filtered.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-4xl mb-3">🔍</p>
+              <p className="font-ui text-text-sub text-sm">
+                Không tìm thấy bài hát nào
+                {musicSearch && <span> cho "<strong>{musicSearch}</strong>"</span>}
+              </p>
+              <button
+                onClick={() => setMusicSearch('')}
+                className="mt-3 font-ui text-xs text-primary hover:underline cursor-pointer"
+              >
+                Xoá tìm kiếm
+              </button>
+            </div>
+          )}
+
           <motion.div layout className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {(filtered.length ? filtered : MUSIC.slice(0, 3)).map((m, i) => {
-              const isCurrentPlaying = playingItem && playingItem.spotifyUrl === m.spotifyUrl
+            {filtered.map((m, i) => {
+
+              const isCurrentPlaying = playingItem && playingItem.youtubeId === m.youtubeId
               return (
                 <motion.div
-                  key={i}
+                  key={m.id || m.youtubeId || i}
                   layout
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -347,8 +385,14 @@ export default function ExplorePage() {
                   }}
                 >
                   <div>
-                    <div className="w-full aspect-square rounded-2xl bg-white/50 flex items-center justify-center text-5xl mb-4 shadow-inner select-none">
-                      {m.emoji}
+                    <div className="w-full aspect-square rounded-2xl bg-white/50 overflow-hidden mb-4 shadow-inner relative select-none">
+                      {getCoverUrl(m) ? (
+                        <img src={getCoverUrl(m)} alt={m.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-5xl">
+                          {m.emoji}
+                        </div>
+                      )}
                     </div>
                     <h4 className="font-body font-bold text-text-main text-base mb-0.5">{m.title}</h4>
                     <p className="font-ui text-xs text-text-sub mb-4">{m.artist}</p>
@@ -383,38 +427,103 @@ export default function ExplorePage() {
       {activeTab === 'breathing' && <BreathingExercise />}
 
       {activeTab === 'podcast' && (
-        <div className="grid sm:grid-cols-2 gap-4 animate-fade-in">
-          {[
-            { title: 'Lo-fi Stories',       ep: 'Câu chuyện buổi tối',     emoji: '🌙', spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS' },
-            { title: 'Sống tích cực',       ep: 'Sắp xếp lại tâm trí',     emoji: '✨', spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS' },
-          ].map((p, i) => {
-            const isCurrentPlaying = playingItem && playingItem.spotifyUrl === p.spotifyUrl
-            return (
-              <div 
-                key={i} 
-                className={cn(
-                  "card-hover flex items-center gap-4 border transition-all duration-200", 
-                  isCurrentPlaying ? "border-primary bg-primary/10" : "border-primary/20 bg-white"
-                )}
-                onClick={() => {
-                  if (isCurrentPlaying) {
-                    setPlayingItem(null)
-                  } else {
-                    setPlayingItem(p)
-                    setIsMinimized(false)
-                  }
-                }}
+        <div className="animate-fade-in">
+
+          {/* Search box */}
+          <div className="relative mb-4">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-sub pointer-events-none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </span>
+            <input
+              type="text"
+              placeholder="Tìm podcast..."
+              value={podcastSearch}
+              onChange={(e) => setPodcastSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-primary/20 bg-white font-ui text-sm text-text-main placeholder:text-text-sub/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+            />
+            {podcastSearch && (
+              <button
+                onClick={() => setPodcastSearch('')}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-sub hover:text-text-main transition-colors cursor-pointer"
               >
-                <div className="w-14 h-14 rounded-2xl bg-secondary/30 flex items-center justify-center text-3xl shrink-0 select-none">
-                  {p.emoji}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-body font-semibold text-text-main text-sm">{p.title}</p>
-                  <p className="font-ui text-xs text-text-sub truncate">{p.ep}</p>
-                </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6 6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* Mood filter tags */}
+          <div className="flex gap-2 flex-wrap mb-6">
+            {[
+              { value: 'all', label: 'Tất cả', emoji: '🎙️' },
+              { value: 'calm', label: 'Chill', emoji: '🍃' },
+              { value: 'sad', label: 'Chữa lành', emoji: '🥺' },
+              { value: 'happy', label: 'Hài hước', emoji: '😄' },
+              { value: 'sleep', label: 'Ngủ ngon', emoji: '🌙' },
+            ].map((tag) => (
+              <button
+                key={tag.value}
+                onClick={() => setPodcastMoodFilter(tag.value)}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-full font-ui text-xs font-medium transition-all duration-200 cursor-pointer border',
+                  podcastMoodFilter === tag.value
+                    ? 'bg-primary border-primary text-primary-dark shadow-sm scale-105'
+                    : 'bg-white border-primary/20 text-text-sub hover:border-primary/50 hover:text-text-main'
+                )}
+              >
+                <span>{tag.emoji}</span>
+                <span>{tag.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {loadingPodcasts && (
+            <p className="font-ui text-sm text-text-sub mb-4">Đang tải podcast...</p>
+          )}
+
+          {!loadingPodcasts && allPodcasts.length === 0 && (
+            <div className="text-center py-16">
+              <p className="text-4xl mb-3">🎙️</p>
+              <p className="font-ui text-text-sub text-sm">Chưa có podcast nào.</p>
+            </div>
+          )}
+
+          {!loadingPodcasts && allPodcasts.length > 0 && filteredPodcasts.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-4xl mb-3">🔍</p>
+              <p className="font-ui text-text-sub text-sm">
+                Không tìm thấy podcast nào
+                {podcastSearch && <span> cho "<strong>{podcastSearch}</strong>"</span>}
+              </p>
+              <button
+                onClick={() => { setPodcastSearch(''); setPodcastMoodFilter('all') }}
+                className="mt-3 font-ui text-xs text-primary hover:underline cursor-pointer"
+              >
+                Xoá bộ lọc
+              </button>
+            </div>
+          )}
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {filteredPodcasts.map((p, i) => {
+
+              const isCurrentPlaying = playingItem && (
+                (p.youtubeId && playingItem.youtubeId === p.youtubeId) ||
+                (p.id && playingItem.id === p.id)
+              )
+              return (
+                <div
+                  key={p.id || p.youtubeId || i}
+                  className={cn(
+                    'card-hover flex items-start gap-4 p-4 rounded-2xl border transition-all duration-200 cursor-pointer',
+                    isCurrentPlaying
+                      ? 'border-primary bg-primary/10 shadow-card'
+                      : `border-primary/20 ${p.color || 'bg-white'}`
+                  )}
+                  onClick={() => {
                     if (isCurrentPlaying) {
                       setPlayingItem(null)
                     } else {
@@ -422,13 +531,70 @@ export default function ExplorePage() {
                       setIsMinimized(false)
                     }
                   }}
-                  className="p-2 rounded-full hover:bg-black/5 text-text-sub hover:text-text-main transition-colors cursor-pointer"
                 >
-                  {isCurrentPlaying ? <Pause size={18} className="text-primary-dark" /> : <Play size={18} />}
-                </button>
-              </div>
-            )
-          })}
+                  {/* Cover or Emoji */}
+                  {getCoverUrl(p) ? (
+                    <div className={cn(
+                      'w-14 h-14 rounded-2xl overflow-hidden shrink-0 select-none shadow-sm relative',
+                      isCurrentPlaying ? 'ring-2 ring-primary' : ''
+                    )}>
+                      <img src={getCoverUrl(p)} alt={p.title} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className={cn(
+                      'w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shrink-0 select-none shadow-sm',
+                      isCurrentPlaying ? 'bg-primary/20' : 'bg-white/70'
+                    )}>
+                      {p.emoji || '🎙️'}
+                    </div>
+                  )}
+
+                  {/* Nội dung */}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-body font-semibold text-text-main text-sm leading-snug mb-1">
+                      {p.title}
+                    </p>
+                    <p className="font-ui text-xs text-text-sub line-clamp-2 mb-2">{p.ep}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {p.duration && (
+                        <span className="font-ui text-xs text-text-sub/70 bg-white/60 rounded-full px-2 py-0.5">
+                          ⏱ {p.duration} phút
+                        </span>
+                      )}
+                      {isCurrentPlaying && (
+                        <span className="font-ui text-xs text-primary font-medium animate-pulse">
+                          ▶ Đang phát
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Nút play/pause */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (isCurrentPlaying) {
+                        setPlayingItem(null)
+                      } else {
+                        setPlayingItem(p)
+                        setIsMinimized(false)
+                      }
+                    }}
+                    className={cn(
+                      'p-2.5 rounded-full shrink-0 transition-all duration-200 cursor-pointer',
+                      isCurrentPlaying
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'bg-white/70 text-text-sub hover:bg-white hover:text-text-main'
+                    )}
+                  >
+                    {isCurrentPlaying
+                      ? <Pause size={16} />
+                      : <Play size={16} />}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
@@ -436,4 +602,3 @@ export default function ExplorePage() {
     </div>
   )
 }
-

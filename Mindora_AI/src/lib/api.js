@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8080/api'
+const API_BASE = 'https://mindorabe.onrender.com/api'
 
 export const getToken = () => localStorage.getItem('mindora_token')
 export const setToken = (token) => localStorage.setItem('mindora_token', token)
